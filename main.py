@@ -25,6 +25,13 @@ reviews: list[dict] = [
         "movie_title": "The swamps blood banks",
         "content": "This movie is terrible. I hope that ill be the only living being to have ever saw it.",
         "date_posted": "December 25, 2026",
+    },
+    {
+        "id": 3,
+        "author": "Arkadiusz Tymura",
+        "movie_title": "Tenet",
+        "content": "Wtf did I just watch?",
+        "date_posted": "July 16, 2024",
     }
 ]
 
@@ -67,12 +74,8 @@ def home_page(request: Request):
         if movie not in random_movies:
             random_movies.append(movie)
     
-    return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "title": "Home page", "movies": random_movies})
+    return templates.TemplateResponse("home.html", {"request": request, "reviews": reviews, "title": "Home page", "movies": random_movies})
 
 @app.get("/api/reviews")
 def get_reviews():
     return reviews
-
-
-# ideas: add a banner below the navbar that shows random movies as a 'discover tab'
-# remake the site into a movie review page

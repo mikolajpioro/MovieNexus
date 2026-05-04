@@ -12,4 +12,18 @@
                 {%  endfor %}
             </div>
     </div>
+
+    <div class="reviews_container">
+        {% for review in reviews %}
+            <div class="review_card">
+                <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
+                <div class="review_content">
+                    <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">
+                        <a class="reviewer_name" href="#">{{ review.author }}</a>
+                        <p class="review_date">{{ review.date_posted }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock content %}
