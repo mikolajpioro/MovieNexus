@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <link rel="stylesheet" href = "{{ url_for('static', path='style.css')}}">
+    </head>
+    <body>
+        <div class="nav_bar">
+            <img src="{{ url_for('static', path='logo.jpg') }}" class="logo" alt="Our logo">
+           
+            <div class="search_container">
+                <input type="text" placeholder="Search..." class="search_bar">
+            </div>
+
+            <div class="nav_group">
+                <button class="login_button">Log in</button>
+                <button class="register_button">Register</button>
+                <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
+            </div>
+        </div>
+
+        <main>
+            {% block content %}
+            {% endblock content %}
+        </main>
+    </body>
+</html>

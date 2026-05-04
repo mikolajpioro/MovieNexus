@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="discover_container">
+        <p class="discover_paragraph">Discover something new:</p>
+            <div class="discover_movie_row">
+                {% for movie in movies %}
+                    <div class="discover_movie_card">
+                        <img class="discover_movie_poster" src="{{ movie.poster }}" alt="{{ movie.title }} poster">
+                        <p class="discover_movie_title">{{ movie.title }}</p>
+                    </div>
+                {%  endfor %}
+            </div>
+    </div>
+{% endblock content %}
