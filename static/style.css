@@ -139,14 +139,20 @@ body{
     display: flex;
     flex-direction: row;
     background-color: rgb(158, 68, 43);
-    border: 2px solid rgb(29, 85, 109);
+    border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
-    width: 600px;
-    height: 200px;
+    height: auto;
     margin-left: 10%;
+    gap: 20px;
+    padding-right: 25px;
+    padding-bottom: 15px;
+    width: 100%;
+    max-width: 750px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .review_card_pfp{
+    margin: 0;
     margin: 15px;
     border-radius: 100px;
     width: 70px;
@@ -155,9 +161,10 @@ body{
 
 .review_content{
     display: flex;
+    font-family: Verdana;
     flex-direction: column;
     text-decoration: none;
-    justify-content: flex-start; 
+    align-items: flex-start;
     padding-top: 10px;
 }
 
@@ -168,4 +175,41 @@ body{
 
 .review_date{
     font-size: 12px;
+}
+
+#review_movie_poster{
+    width: 60px;
+    height: 90px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.review_movie_title {
+    text-align: left; 
+    text-decoration: none;
+    font-size: 14px;
+    max-width: 110px;
+    word-wrap: break-word;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.review_movie_score{
+    font-size: 12px;
+    margin-bottom: 2%;
+    margin-top: 0;
+    margin-bottom: 2%;   
+    color: rgba(40, 85, 109, 0.8);
+    font-weight: bold;
+}
+
+.review_sauce {
+    font-size: 14px;
+    line-height: 1.5;
+    color: black;
+    word-wrap: break-word;
+    max-width: 400px;
+    margin: 0;
+    padding-top: 5px;
+    flex: 1;
 }

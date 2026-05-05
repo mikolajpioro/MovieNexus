@@ -18,10 +18,22 @@
             <div class="review_card">
                 <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
                 <div class="review_content">
+
                     <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">
                         <a class="reviewer_name" href="#">{{ review.author }}</a>
                         <p class="review_date">{{ review.date_posted }}</p>
                     </div>
+
+                    <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%;">
+                        <div style="display: flex; flex-direction: column; min-width: 110px;">
+                            <img id="review_movie_poster" src="{{ url_for('static', path='defaultposter.jpg') }}" alt="{{review.movie_title}}'s poster">
+                            <a class="review_movie_title">{{ review.movie_title }}</a>
+                            <p class="review_movie_score">{{ review.score }}</p>
+                        </div>
+                            <p class="review_sauce">{{ review.content }}</p>
+                    </div>
+
+
                 </div>
             </div>
         {% endfor %}

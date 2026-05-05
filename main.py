@@ -16,6 +16,7 @@ reviews: list[dict] = [
         "id": 1,
         "author": "John Ballsini",
         "movie_title": "Reservoir dogs",
+        "score": "10/10",
         "content": "This movie is amazing. It has trurly changed my outlook on storytelling as a whole.",
         "date_posted": "July 20, 2025",
     },
@@ -23,6 +24,7 @@ reviews: list[dict] = [
         "id": 2,
         "author": "Mr Wellers",
         "movie_title": "The swamps blood banks",
+        "score": "1/10",
         "content": "This movie is terrible. I hope that ill be the only living being to have ever saw it.",
         "date_posted": "December 25, 2026",
     },
@@ -30,6 +32,7 @@ reviews: list[dict] = [
         "id": 3,
         "author": "Arkadiusz Tymura",
         "movie_title": "Tenet",
+        "score": "7/10",
         "content": "Wtf did I just watch?",
         "date_posted": "July 16, 2024",
     }
