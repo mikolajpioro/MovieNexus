@@ -6,8 +6,10 @@
     </head>
     <body>
         <div class="nav_bar">
+            <a href="{{ url_for('home') }}">
             <img src="{{ url_for('static', path='logo.jpg') }}" class="logo" alt="Our logo">
-           
+            </a>
+
             <div class="search_container">
                 <input type="text" placeholder="Search..." class="search_bar">
             </div>

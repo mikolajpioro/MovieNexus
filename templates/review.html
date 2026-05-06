@@ -2,8 +2,8 @@
 
 {% block content %}
 
-    <div class="reviews_container">
-            <div class="review_card">
+    <div class="user_review_container">
+            <div class="user_review_card">
                 <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
                 <div class="review_content">
 
@@ -17,10 +17,11 @@
                             <img id="review_movie_poster" src="{{ url_for('static', path='defaultposter.jpg') }}" alt="{{review.movie_title}}'s poster">
                             <a class="review_movie_title">{{ review.movie_title }}</a>
                             <p class="review_movie_score">{{ review.score }}</p>
+                            <button id="edit">Edit</button>
+                            <button id="delete">Delete</button>
                         </div>
                             <p class="review_sauce">{{ review.content }}</p>
                     </div>
-
 
                 </div>
             </div>

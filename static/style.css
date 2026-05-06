@@ -230,3 +230,50 @@ body{
       0 0 102px #63b2e0,
       0 0 151px #63b2e0;
 }
+
+.user_review_container{
+    display: flex;
+    flex-direction: column;
+    font-family: Verdana;
+    margin-top: 5%;
+}
+
+.user_review_card{
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(158, 68, 43);
+    border: 1px solid rgba(29, 85, 109, 0.2);
+    border-radius: 30px;
+    height: auto;
+    gap: 20px;
+    padding-right: 25px;
+    padding-bottom: 15px;
+    width: 100%;
+    max-width: 750px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#edit{
+    background-color: rgb(218, 165, 32);
+    border: solid 2px rgb(29, 85, 109);
+    border-radius: 5px;
+    font-family: Verdana;
+    font-weight: bold;
+    margin-top: 2%;
+}
+
+#delete{
+    background-color: rgb(150, 40, 27);
+    border: solid 2px rgb(29, 85, 109);
+    border-radius: 5px;
+    font-family: Verdana;
+    font-weight: bold;
+    margin-top: 2%;
+}
+
+#edit:hover, #delete:hover{
+    background-color: wheat;
+    cursor: pointer;
+}

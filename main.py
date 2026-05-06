@@ -79,7 +79,7 @@ def home_page(request: Request):
     
     return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "title": "Home page", "movies": random_movies})
 
-@app.get("/reviews/{review_id}", include_in_schema=False)
+@app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
 def review_page(request: Request, review_id: int):
     for review in reviews:
         if review.get("id") == review_id:
