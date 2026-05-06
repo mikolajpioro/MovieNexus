@@ -93,7 +93,8 @@ body{
 }
 
 .discover_paragraph{
-    font-size: 20px;
+    font-family: sans-serif;
+    font-size: 25px;
 }
 
 .discover_movie_row{
@@ -116,6 +117,7 @@ body{
 .discover_movie_poster{
     height: 180px;
     width: 130px;
+    border-radius: 10px;
 }
 
 .discover_movie_title{
@@ -212,4 +214,19 @@ body{
     margin: 0;
     padding-top: 5px;
     flex: 1;
+    text-decoration: none;
+}
+
+.review_sauce:hover{
+    color: rgb(29, 85, 109);
+    cursor: pointer;
+    text-shadow:
+      0 0 7px #45a1d6,
+      0 0 10px #45a1d6,
+      0 0 21px #45a1d6,
+      0 0 42px #63b2e0,
+      0 0 82px #63b2e0,
+      0 0 92px #63b2e0,
+      0 0 102px #63b2e0,
+      0 0 151px #63b2e0;
 }

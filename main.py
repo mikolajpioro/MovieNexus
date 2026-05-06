@@ -77,7 +77,16 @@ def home_page(request: Request):
         if movie not in random_movies:
             random_movies.append(movie)
     
-    return templates.TemplateResponse("home.html", {"request": request, "reviews": reviews, "title": "Home page", "movies": random_movies})
+    return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "title": "Home page", "movies": random_movies})
+
+@app.get("/reviews/{review_id}", include_in_schema=False)
+def review_page(request: Request, review_id: int):
+    for review in reviews:
+        if review.get("id") == review_id:
+            title = f"{review['author']}'s review"
+            return templates.TemplateResponse(request, "review.html", {"review": review, "title": title})
+    return None
+
 
 @app.get("/api/reviews")
 def get_reviews():
