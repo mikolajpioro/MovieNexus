@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import requests, random
@@ -85,9 +85,24 @@ def review_page(request: Request, review_id: int):
         if review.get("id") == review_id:
             title = f"{review['author']}'s review"
             return templates.TemplateResponse(request, "review.html", {"review": review, "title": title})
-    return None
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Not found"
+    )
 
 
+
+# api endpoints----------------
 @app.get("/api/reviews")
 def get_reviews():
     return reviews
+
+@app.get("/api/reviews/{review_id}")
+def get_post(review_id: int):
+    for review in reviews:
+        if review.get("id") == review_id:
+            return review
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Not found"
+    )
