@@ -273,7 +273,22 @@ body{
     margin-top: 2%;
 }
 
+#delete, #edit{
+    font-size: 15px;
+    height: 50px;
+    width: 100px;
+}
+
 #edit:hover, #delete:hover{
     background-color: wheat;
     cursor: pointer;
+}
+
+.user_review_buttons{
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    gap: 25px;
 }
