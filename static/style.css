@@ -135,6 +135,7 @@ body{
     row-gap: 20px;
     font-family: Verdana;
     padding-bottom: 5%;
+    margin-top: 15px;
 }
 
 .review_card{
@@ -144,7 +145,7 @@ body{
     border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
     height: auto;
-    margin-left: 10%;
+    margin-left: 20%;
     gap: 20px;
     padding-right: 25px;
     padding-bottom: 15px;
@@ -291,4 +292,29 @@ body{
     margin-right: auto;
     margin-top: 10px;
     gap: 25px;
+}
+
+.list_group{
+    list-style: none;
+}
+
+li{
+    border: 1px solid rgb(29, 85, 109);
+    background-color: rgb(158, 68, 43);
+    width: 300px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    font-family: Verdana;
+    text-align: center;
+    cursor: pointer;
+}
+
+#list_first {
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+#list_last {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }

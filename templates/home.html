@@ -12,30 +12,38 @@
                 {%  endfor %}
             </div>
     </div>
+    <div style="display: flex; flex-direction: row; gap: 300px">
+        <div class="reviews_container">
+            {% for review in reviews %}
+                <div class="review_card">
+                    <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
+                    <div class="review_content">
 
-    <div class="reviews_container">
-        {% for review in reviews %}
-            <div class="review_card">
-                <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
-                <div class="review_content">
-
-                    <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">
-                        <a class="reviewer_name" href="#">{{ review.author }}</a>
-                        <p class="review_date">{{ review.date_posted }}</p>
-                    </div>
-
-                    <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%;">
-                        <div style="display: flex; flex-direction: column; min-width: 110px;">
-                            <img id="review_movie_poster" src="{{ url_for('static', path='defaultposter.jpg') }}" alt="{{review.movie_title}}'s poster">
-                            <a class="review_movie_title">{{ review.movie_title }}</a>
-                            <p class="review_movie_score">{{ review.score }}</p>
+                        <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">
+                            <a class="reviewer_name" href="#">{{ review.author }}</a>
+                            <p class="review_date">{{ review.date_posted }}</p>
                         </div>
-                            <a class="review_sauce" href="{{ url_for('review_page', review_id=review.id) }}">{{ review.content }}</a>
+
+                        <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%;">
+                            <div style="display: flex; flex-direction: column; min-width: 110px;">
+                                <img id="review_movie_poster" src="{{ url_for('static', path='defaultposter.jpg') }}" alt="{{review.movie_title}}'s poster">
+                                <a class="review_movie_title">{{ review.movie_title }}</a>
+                                <p class="review_movie_score">{{ review.score }}</p>
+                            </div>
+                                <a class="review_sauce" href="{{ url_for('review_page', review_id=review.id) }}">{{ review.content }}</a>
+                        </div>
+
+
                     </div>
-
-
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="more_section">
+            <ul class="list_group">
+                <li id="list_first">Latest Reviews</li>
+                <li>Library</li>
+                <li id="list_last">Top-rated</li>
+            </ul>
+        </div>
     </div>
 {% endblock content %}
