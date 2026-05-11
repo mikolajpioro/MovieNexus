@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="review_card">
+        <h1>
+            <a class="reviewe_name" href="#">Oops... {{ status_code }} Error</a>
+        </h1>
+        <p class="error_message">{{ message }}</p>
+    </div>
+{% endblock content %}
