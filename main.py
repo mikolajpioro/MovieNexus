@@ -136,3 +136,23 @@ def general_https_exception_handler(request: Request, exception: StarletteHTTPEx
         },
         status_code=exception.status_code
     )
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request: Request, exception: RequestValidationError):
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content = {"detail": exception.errors()}
+        )
+    
+    return templates.TemplateResponse(
+        request,
+        "error.html",
+        {
+            "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "detail": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "message": "Invalid request."
+        },
+        status_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
+    )
+

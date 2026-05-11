@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <div class="review_card">
+    <div class="review_card" style="margin-top: 10%; display: flex; flex-direction: row; align-items: center; justify-content: center;">
         <h1>
-            <a class="reviewe_name" href="#">Oops... {{ status_code }} Error</a>
+            <a class="reviewe_name" href="#" style="text-decoration: none; color: rgb(29, 85, 109);">Oops... {{ status_code }} Error:</a>
         </h1>
-        <p class="error_message">{{ message }}</p>
+        <p class="error_message" style="font-size: 30px; font-weight: bold;">{{ message }}</p>
     </div>
 {% endblock content %}
