@@ -136,6 +136,7 @@ body{
     font-family: Verdana;
     padding-bottom: 5%;
     margin-top: 15px;
+    justify-content: center;
 }
 
 .review_card{
@@ -145,7 +146,6 @@ body{
     border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
     height: auto;
-    margin-left: 20%;
     gap: 20px;
     padding-right: 25px;
     padding-bottom: 15px;
@@ -294,12 +294,8 @@ body{
     gap: 25px;
 }
 
-.list_group{
-    list-style: none;
-}
-
-li{
-    border: 1px solid rgb(29, 85, 109);
+.more_section_buttons{
+    border: 2px solid rgb(29, 85, 109);
     background-color: rgb(158, 68, 43);
     width: 300px;
     padding-bottom: 15px;
@@ -307,14 +303,23 @@ li{
     font-family: Verdana;
     text-align: center;
     cursor: pointer;
+    font-family: Verdana;
+    font-size: 25px;
 }
 
-#list_first {
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
+#latest_reviews_button{
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    border-right: none;
 }
 
-#list_last {
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
+#top_rated_button{
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    border-left: none;
+}
+
+#top_rated_button:hover, #latest_reviews_button:hover, #library_button:hover{
+    background-color: rgb(29, 85, 109);
+     border: 2px solid rgb(158, 68, 43);
 }
