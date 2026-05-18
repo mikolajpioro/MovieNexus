@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import requests, random
 
+from schemas import ReviewCreate, ReviewResponse
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
@@ -96,11 +98,31 @@ def review_page(request: Request, review_id: int):
 
 
 # api endpoints----------------
-@app.get("/api/reviews")
+@app.get("/api/reviews", response_model=list[ReviewResponse])
 def get_reviews():
     return reviews
 
-@app.get("/api/reviews/{review_id}")
+@app.post("/api/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
+def create_review(review: ReviewCreate):
+    max_id = 0
+    for r in reviews:
+        if r["id"] > max_id:
+            max_id = r["id"]
+    new_id = max_id + 1
+
+    new_review = {
+        "id": new_id,
+        "author": review.author,
+        "movie_title": review.movie_title,
+        "score": review.score,
+        "content": review.content,
+        "date_posted": "June 21, 2027"
+    }
+    reviews.append(new_review)
+    return new_review
+
+
+@app.get("/api/reviews/{review_id}", response_model=ReviewResponse)
 def get_post(review_id: int):
     for review in reviews:
         if review.get("id") == review_id:
@@ -109,7 +131,6 @@ def get_post(review_id: int):
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Not found"
     )
-
 
 
 #error routes-------------------
