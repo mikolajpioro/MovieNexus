@@ -180,7 +180,7 @@ body{
     font-size: 12px;
 }
 
-#review_movie_poster{
+.review_movie_poster{
     width: 60px;
     height: 90px;
     border-radius: 4px;

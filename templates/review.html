@@ -14,7 +14,7 @@
 
                     <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%;">
                         <div style="display: flex; flex-direction: column; min-width: 110px;">
-                            <img id="review_movie_poster" src="{{ url_for('static', path='defaultposter.jpg') }}" alt="{{review.movie_title}}'s poster">
+                            <img class="review_movie_poster" src="{{ review.poster_url }}" alt="{{review.movie_title}}'s poster">
                             <a class="review_movie_title">{{ review.movie_title }}</a>
                             <p class="review_movie_score">{{ review.score }}</p>
                         </div>

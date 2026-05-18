@@ -24,6 +24,7 @@ reviews: list[dict] = [
         "score": "10/10",
         "content": "This movie is amazing. It has trurly changed my outlook on storytelling as a whole.",
         "date_posted": "July 20, 2025",
+        "poster_url": "/static/defaultposter.jpg",
     },
     {
         "id": 2,
@@ -32,14 +33,16 @@ reviews: list[dict] = [
         "score": "1/10",
         "content": "This movie is terrible. I hope that ill be the only living being to have ever saw it.",
         "date_posted": "December 25, 2026",
+        "poster_url": "/static/defaultposter.jpg",
     },
     {
         "id": 3,
         "author": "Arkadiusz Tymura",
-        "movie_title": "Tenet",
+        "movie_title": "Gorgeous",
         "score": "7/10",
         "content": "Wtf did I just watch?",
         "date_posted": "July 16, 2024",
+        "poster_url": "/static/defaultposter.jpg",
     }
 ]
 
@@ -72,9 +75,46 @@ def get_random_movie():
             }
     return None
 
+def get_movie_poster(movie_title: str):
+    url = f"{base_url}/search/movie"
+    params = {
+        "api_key": api_key,
+        "language": "en-US",
+        "query": movie_title,
+        "page": 1,
+        "include_adult": "false"
+    }
+
+    try:
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+            results = data.get("results")
+
+            if results:
+                first_match = results[0]
+                poster_path = first_match.get("poster_path")
+                if poster_path:
+                    return {
+                        "poster": f"{image_base_url}{poster_path}"
+                    }
+    except Exception as e:
+        print(f"Failed fetching the poster for {movie_title}")
+        return None
+    return None
+
+
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/reviews", include_in_schema=False, name="home")
 def home_page(request: Request):
+
+    for review in reviews:
+        poster_data = get_movie_poster(review["movie_title"])
+        if poster_data and poster_data.get("poster"):
+            review["poster_url"] = poster_data["poster"]
+        else:
+            review["poster_url"] = "/static/defaultposter.jpg"
 
     random_movies = []
     while len(random_movies) < 3:
@@ -110,13 +150,17 @@ def create_review(review: ReviewCreate):
             max_id = r["id"]
     new_id = max_id + 1
 
+    poster_data = get_movie_poster(review.movie_title)
+    fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
+
     new_review = {
         "id": new_id,
         "author": review.author,
         "movie_title": review.movie_title,
         "score": review.score,
         "content": review.content,
-        "date_posted": "June 21, 2027"
+        "date_posted": "June 21, 2027",
+        "poster_url": fetched_url
     }
     reviews.append(new_review)
     return new_review
