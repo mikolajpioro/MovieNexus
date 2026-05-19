@@ -99,11 +99,10 @@ def get_movie_poster(movie_title: str):
                     return {
                         "poster": f"{image_base_url}{poster_path}"
                     }
-    except Exception as e:
+    except Exception:
         print(f"Failed fetching the poster for {movie_title}")
         return None
     return None
-
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/reviews", include_in_schema=False, name="home")
@@ -175,6 +174,7 @@ def get_post(review_id: int):
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Not found"
     )
+
 
 
 #error routes-------------------
