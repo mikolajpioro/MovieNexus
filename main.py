@@ -13,7 +13,9 @@ app.mount("/static", StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 from keys import url, image_url, api_key_
+# "https://api.themoviedb.org/3"
 base_url = url
+# "https://image.tmdb.org/t/p/w500"
 image_base_url = image_url
 api_key = api_key_
 
