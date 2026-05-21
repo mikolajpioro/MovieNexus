@@ -12,9 +12,11 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
-base_url = "https://api.themoviedb.org/3"
-image_base_url = "https://image.tmdb.org/t/p/w500"
-api_key = "d4b594c5c529eeb02d2c93543bc1907d"
+from keys import url, image_url, api_key_
+base_url = url
+image_base_url = image_url
+api_key = api_key_
+
 
 reviews: list[dict] = [
     {
