@@ -81,6 +81,7 @@ def get_random_movie():
 
 def get_movie_poster(movie_title: str):
     url = f"{base_url}/search/movie"
+
     params = {
         "api_key": api_key,
         "language": "en-US",
@@ -103,8 +104,8 @@ def get_movie_poster(movie_title: str):
                     return {
                         "poster": f"{image_base_url}{poster_path}"
                     }
-    except Exception:
-        print(f"Failed fetching the poster for {movie_title}")
+    except Exception as ex:
+        print(f"Failed to fetch the movie poster for {movie_title}")
         return None
     return None
 
