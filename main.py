@@ -141,7 +141,7 @@ def review_page(request: Request, review_id: int):
 
 
 
-# api endpoints----------------
+# api endpoints---------------
 @app.get("/api/reviews", response_model=list[ReviewResponse])
 def get_reviews():
     return reviews
@@ -182,7 +182,7 @@ def get_post(review_id: int):
 
 
 
-#error routes-------------------
+#error routes------------------
 @app.exception_handler(StarletteHTTPException)
 def general_https_exception_handler(request: Request, exception: StarletteHTTPException):
     message = (
@@ -225,4 +225,3 @@ def validation_exception_handler(request: Request, exception: RequestValidationE
         },
         status_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
     )
-
