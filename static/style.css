@@ -245,7 +245,8 @@ body{
     background-color: rgb(158, 68, 43);
     border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
-    height: auto;
+    min-height: 300px;
+    min-width: 500px;
     gap: 20px;
     padding-right: 25px;
     padding-bottom: 15px;

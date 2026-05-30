@@ -11,7 +11,6 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
     image_file: str | None
     image_path: str
@@ -26,7 +25,6 @@ class ReviewCreate(ReviewBase):
 
 class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
     date_posted: datetime
     poster_url: Optional[str] = None

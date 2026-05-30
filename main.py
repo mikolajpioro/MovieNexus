@@ -8,7 +8,8 @@ import sqlalchemy
 import requests, random
 from typing import Annotated
 from sqlalchemy import select
-from sqlalchemy.orm import session
+from sqlalchemy.orm import Session, joinedload
+
 
 import models
 from database import Base, engine, get_db
@@ -29,36 +30,6 @@ base_url = url
 image_base_url = image_url
 api_key = api_key_
 
-
-reviews: list[dict] = [
-    {
-        "id": 1,
-        "author": "John Ballsini",
-        "movie_title": "Reservoir dogs",
-        "score": "10/10",
-        "content": "This movie is amazing. It has trurly changed my outlook on storytelling as a whole.",
-        "date_posted": "July 20, 2025",
-        "poster_url": "/static/defaultposter.jpg",
-    },
-    {
-        "id": 2,
-        "author": "Mr Wellers",
-        "movie_title": "The swamps blood banks",
-        "score": "1/10",
-        "content": "This movie is terrible. I hope that ill be the only living being to have ever saw it.",
-        "date_posted": "December 25, 2026",
-        "poster_url": "/static/defaultposter.jpg",
-    },
-    {
-        "id": 3,
-        "author": "Arkadiusz Tymura",
-        "movie_title": "Gorgeous",
-        "score": "7/10",
-        "content": "Wtf did I just watch?",
-        "date_posted": "July 16, 2024",
-        "poster_url": "/static/defaultposter.jpg",
-    }
-]
 
 def get_random_movie():
     random_page = random.randint(1, 500)
@@ -120,15 +91,10 @@ def get_movie_poster(movie_title: str):
     return None
 
 @app.get("/", include_in_schema=False, name="home")
-@app.get("/reviews", include_in_schema=False, name="home")
-def home_page(request: Request):
-
-    for review in reviews:
-        poster_data = get_movie_poster(review["movie_title"])
-        if poster_data and poster_data.get("poster"):
-            review["poster_url"] = poster_data["poster"]
-        else:
-            review["poster_url"] = "/static/defaultposter.jpg"
+@app.get("/reviews", include_in_schema=False, name="reviews")
+def home(request: Request, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review))
+    reviews = result.scalars().all()
 
     random_movies = []
     while len(random_movies) < 3:
@@ -136,59 +102,145 @@ def home_page(request: Request):
         if movie not in random_movies:
             random_movies.append(movie)
     
-    return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "title": "Home page", "movies": random_movies})
-
-@app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
-def review_page(request: Request, review_id: int):
     for review in reviews:
-        if review.get("id") == review_id:
-            title = f"{review['author']}'s review"
-            return templates.TemplateResponse(request, "review.html", {"review": review, "title": title})
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Not found"
+        if not review.poster_url or review.poster_url == "/static/defaultposter.jpg":
+            poster_data = get_movie_poster(review.movie_title)
+            if poster_data and poster_data.get("poster"):
+                review.poster_url = poster_data["poster"]
+                db.add(review)
+    
+    db.commit()
+
+    return templates.TemplateResponse(
+        request,
+        "home.html",
+        {"reviews": reviews, "movies": random_movies, "title": "Home"}
     )
 
+@app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
+def review_page(request: Request, review_id: int, db:Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    review = result.scalars().first()
 
+    if review:
+        title = f"{review.author.username}'s review"
+        return templates.TemplateResponse(request, "review.html", {"review": review, "title": title})
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found"
+        )
 
-# api endpoints---------------
-@app.get("/api/reviews", response_model=list[ReviewResponse])
-def get_reviews():
+# api endpoints----------------------
+
+# NEW USER CREATION---------
+@app.post("/api/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User).where(models.User.username == user.username))
+    existing_user = result.scalars().first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This user already exists"
+        )
+    
+    result = db.execute(select(models.User).where(models.User.email == user.email))
+    exisisting_email = result.scalars().first()
+
+    if exisisting_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A user with this e-mail already exists"
+        )
+    
+    new_user = models.User(
+        username = user.username,
+        email = user.email
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+# NEW USER CREATION---------
+
+# GET A USER BY ID----------
+@app.get("/api/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db:Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
+
+    if user:
+        return user
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+# GET A USER BY ID----------
+
+# GET POSTS CREATED BY A USER---------
+@app.get("/api/users/{user_id}/reviews", response_model=list[ReviewResponse])
+def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
+
+    if not user:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
+    reviews = result.scalars().all()
     return reviews
+# GET POSTS CREATED BY A USER---------
 
+# GET ALL REVIEWS---------
+@app.get("/api/reviews", response_model=list[ReviewResponse])
+def get_reviews(db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review))
+    reviews = result.scalars().all()
+    return reviews
+# GET ALL REVIEWS---------
+
+# CREATE A NEW REVIEW---------
 @app.post("/api/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
-def create_review(review: ReviewCreate):
-    max_id = 0
-    for r in reviews:
-        if r["id"] > max_id:
-            max_id = r["id"]
-    new_id = max_id + 1
-
+def create_review(review: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
+    user = db.execute(select(models.User).where(models.User.id == review.user_id)).scalars().first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
     poster_data = get_movie_poster(review.movie_title)
     fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
 
-    new_review = {
-        "id": new_id,
-        "author": review.author,
-        "movie_title": review.movie_title,
-        "score": review.score,
-        "content": review.content,
-        "date_posted": "June 21, 2027",
-        "poster_url": fetched_url
-    }
-    reviews.append(new_review)
-    return new_review
-
-
-@app.get("/api/reviews/{review_id}", response_model=ReviewResponse)
-def get_post(review_id: int):
-    for review in reviews:
-        if review.get("id") == review_id:
-            return review
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Not found"
+    new_review = models.Review(
+        movie_title=review.movie_title,
+        score=review.score,
+        content=review.content,
+        user_id=review.user_id,
+        poster_url=fetched_url
     )
+    db.add(new_review)
+    db.commit()
+    db.refresh(new_review)
+    
+    stmt = select(models.Review).where(models.Review.id == new_review.id).options(joinedload(models.Review.author))
+    return db.execute(stmt).scalars().first()
+# CREATE A NEW REVIEW---------
+
+# GET A POST BY ID----------
+@app.get("/api/reviews/{review_id}", response_model=ReviewResponse)
+def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    review = result.scalars().first()
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found"
+        )
+    return review
+# GET A POST BY ID----------
 
 
 
