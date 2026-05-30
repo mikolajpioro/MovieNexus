@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
@@ -6,11 +6,20 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import sqlalchemy
 import requests, random
+from typing import Annotated
+from sqlalchemy import select
+from sqlalchemy.orm import session
 
-from schemas import ReviewCreate, ReviewResponse
+import models
+from database import Base, engine, get_db
+
+from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name='static')
+app.mount("/media", StaticFiles(directory='media'), name='media')
 templates = Jinja2Templates(directory='templates')
 
 from keys import url, image_url, api_key_

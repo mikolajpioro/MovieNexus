@@ -31,4 +31,5 @@ class Review(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     poster_url: Mapped[str | None] = mapped_column(String(255), nullable=True, default="/static/defaultposter.jpg")
     date_posted: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    
     author: Mapped[User] = relationship(back_populates="reviews")
