@@ -10,11 +10,14 @@ from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-
+# model imports-------
 import models
 from database import Base, engine, get_db
+# model imports-------
 
+# schema imports-------
 from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse
+# schema imports-------
 
 Base.metadata.create_all(bind=engine)
 
@@ -179,7 +182,7 @@ def get_user(user_id: int, db:Annotated[Session, Depends(get_db)]):
         )
 # GET A USER BY ID----------
 
-# GET POSTS CREATED BY A USER---------
+# GET REVIEWS CREATED BY A USER---------
 @app.get("/api/users/{user_id}/reviews", response_model=list[ReviewResponse])
 def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.User).where(models.User.id == user_id))
@@ -194,7 +197,7 @@ def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
     reviews = result.scalars().all()
     return reviews
-# GET POSTS CREATED BY A USER---------
+# GET REVIEWS CREATED BY A USER---------
 
 # GET ALL REVIEWS---------
 @app.get("/api/reviews", response_model=list[ReviewResponse])
@@ -229,7 +232,7 @@ def create_review(review: ReviewCreate, db: Annotated[Session, Depends(get_db)])
     return db.execute(stmt).scalars().first()
 # CREATE A NEW REVIEW---------
 
-# GET A POST BY ID----------
+# GET A REVIEW BY ID----------
 @app.get("/api/reviews/{review_id}", response_model=ReviewResponse)
 def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Review).where(models.Review.id == review_id))
@@ -240,7 +243,7 @@ def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
             detail="Review not found"
         )
     return review
-# GET A POST BY ID----------
+# GET A REVIEW BY ID----------
 
 
 
