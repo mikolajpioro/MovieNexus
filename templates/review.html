@@ -4,7 +4,7 @@
 
     <div class="user_review_container">
             <div class="user_review_card">
-                <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
+                <a class="pfp_link" href="{{ url_for('user_reviews', user_id=review.user_id) }}"><img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture"></a>
                 <div class="review_content">
 
                     <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">

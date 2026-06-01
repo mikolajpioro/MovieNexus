@@ -133,6 +133,20 @@ def review_page(request: Request, review_id: int, db:Annotated[Session, Depends(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
+    
+@app.get("/user_reviews/{user_id}", include_in_schema=False, name="user_reviews")
+def user_reviews(request: Request, user_id: int, db:Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
+    reviews = result.scalars().all()
+    
+    if reviews:
+        title = f"{reviews[0].author.username}'s reviews"
+        return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "title": title})
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Couldn't find this user's reviews"
+        )
 
 # api endpoints----------------------
 
@@ -198,6 +212,7 @@ def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
     reviews = result.scalars().all()
     return reviews
 # GET REVIEWS CREATED BY A USER---------
+
 
 # GET ALL REVIEWS---------
 @app.get("/api/reviews", response_model=list[ReviewResponse])

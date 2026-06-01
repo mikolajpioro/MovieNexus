@@ -1,29 +1,10 @@
 {% extends "layout.html" %}
-
 {% block content %}
-    <div class="discover_container">
-        <p class="discover_paragraph">Discover something new:</p>
-            <div class="discover_movie_row">
-                {% for movie in movies %}
-                    <div class="discover_movie_card">
-                        <img class="discover_movie_poster" src="{{ movie.poster }}" alt="{{ movie.title }} poster">
-                        <p class="discover_movie_title">{{ movie.title }}</p>
-                    </div>
-                {%  endfor %}
-            </div>
-    </div>
-
-    <div class="more_section" style="display: flex; flex-direction: row; justify-content: center; margin-top: 1px;">
-        <button class="more_section_buttons" id="latest_reviews_button">Latest Reviews</button>
-        <button class="more_section_buttons" id="library_button">Library</button>
-        <button class="more_section_buttons" id="top_rated_button">Top-rated</button>
-    </div>
-
     <div style="display: flex; flex-direction: row; justify-content: center;">
         <div class="reviews_container">
             {% for review in reviews %}
                 <div class="review_card">
-                    <a class="pfp_link" href="{{ url_for('user_reviews', user_id=review.user_id) }}"><img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture"></a>
+                    <img class="review_card_pfp" src="{{ url_for('static', path='defaultavatar.jpg') }}" alt="User's profile picture">
                     <div class="review_content">
 
                         <div style="display: flex; flex-direction: row; gap: 5px; margin: 0; align-items: baseline;">
