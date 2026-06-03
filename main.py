@@ -10,14 +10,14 @@ from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-# model imports-------
+# model imports--------
 import models
 from database import Base, engine, get_db
-# model imports-------
+# model imports--------
 
-# schema imports-------
+# schema imports--------
 from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse
-# schema imports-------
+# schema imports--------
 
 Base.metadata.create_all(bind=engine)
 
