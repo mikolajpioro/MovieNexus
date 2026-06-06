@@ -16,7 +16,7 @@ from database import Base, engine, get_db
 # model imports--------
 
 # schema imports--------
-from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse
+from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse, ReviewUpdate
 # schema imports--------
 
 Base.metadata.create_all(bind=engine)
@@ -259,6 +259,36 @@ def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
         )
     return review
 # GET A REVIEW BY ID----------
+
+@app.put("/api/reviews/{review_id}", response_model=ReviewResponse)
+def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    review = result.scalars().first()
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found"
+        )
+    if review_data.user_id != review.user_id:
+        result = db.execute(select(models.User).where(models.User.id == review_data.user_id))
+        user = result.scalars().first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+    poster_data = get_movie_poster(review_data.movie_title)
+    fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
+        
+    review.movie_title = review_data.movie_title
+    review.score = review_data.score
+    review.content = review_data.content
+    review.poster_url = fetched_url
+    
+    db.commit()
+    db.refresh(review)
+    return review
 
 
 
