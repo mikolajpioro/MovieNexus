@@ -260,10 +260,12 @@ def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
     return review
 # GET A REVIEW BY ID----------
 
+# UPDATE A REVIEW FULLY----------
 @app.put("/api/reviews/{review_id}", response_model=ReviewResponse)
 def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
+
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -277,18 +279,20 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-
-    poster_data = get_movie_poster(review_data.movie_title)
-    fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
+    if review_data.movie_title != review.movie_title:
+        poster_data = get_movie_poster(review_data.movie_title)
+        fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
         
     review.movie_title = review_data.movie_title
     review.score = review_data.score
     review.content = review_data.content
+    review.user_id = review_data.user_id
     review.poster_url = fetched_url
     
     db.commit()
     db.refresh(review)
     return review
+# UPDATE A REVIEW FULLY----------
 
 
 
