@@ -265,7 +265,6 @@ def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
 def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
-
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -293,6 +292,33 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
     db.refresh(review)
     return review
 # UPDATE A REVIEW FULLY----------
+
+# UPDATE A REVIEW PARTIALLY----------
+@app.patch("/api/reviews/{review_id}", response_model=ReviewResponse)
+def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    review = result.scalars().first()
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found"
+        )
+    
+    update_data = review_data.model_dump(exclude_unset=True)
+    
+    if "movie_title" in update_data and update_data["movie_title"] != review.movie_title:
+        poster_data = get_movie_poster(update_data["movie_title"])
+        fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
+    
+    for field, value in update_data.items():
+        setattr(review, field, value)
+    
+    db.commit()
+    db.refresh(review)
+    return review
+# UPDATE A REVIEW PARTIALLY----------
+
+
 
 
 
