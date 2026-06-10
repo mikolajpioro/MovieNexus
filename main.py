@@ -318,7 +318,19 @@ def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotat
     return review
 # UPDATE A REVIEW PARTIALLY----------
 
-
+# DELETE A REVIEW--------------------
+@app.delete("/api/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    review = result.scalars().first()
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found"
+        )
+    db.delete(review)
+    db.commit()
+# DELETE A REVIEW-------------------
 
 
 
