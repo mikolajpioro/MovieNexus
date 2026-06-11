@@ -15,6 +15,11 @@ class UserResponse(UserBase):
     image_file: str | None
     image_path: str
 
+class UserUpdate(BaseModel):
+    username: str | None = Field(default=None, min_length=3, max_length=100)
+    email: str | None = Field(default=None, max_length=100)
+    image_file : str | None = Field(default=None, min_length=1, max_length=50)
+
 class ReviewBase(BaseModel):
     movie_title: str = Field(min_length=1, max_length=100)
     score: str = Field(min_length=1, max_length=100)
@@ -23,11 +28,6 @@ class ReviewBase(BaseModel):
 class ReviewCreate(ReviewBase):
     user_id: int
 
-class ReviewUpdate(BaseModel):
-    movie_title: str | None = Field(default=None, min_length=1, max_length=100)
-    score: str | None = Field(default=None, min_length=1, max_length=100)
-    content: str | None = Field(default=None, min_length=1)
-
 class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -35,3 +35,8 @@ class ReviewResponse(ReviewBase):
     poster_url: Optional[str] = None
     user_id: int
     author: UserResponse
+
+class ReviewUpdate(BaseModel):
+    movie_title: str | None = Field(default=None, min_length=1, max_length=100)
+    score: str | None = Field(default=None, min_length=1, max_length=100)
+    content: str | None = Field(default=None, min_length=1)

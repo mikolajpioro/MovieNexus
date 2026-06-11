@@ -16,7 +16,7 @@ from database import Base, engine, get_db
 # model imports--------
 
 # schema imports--------
-from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse, ReviewUpdate
+from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse, ReviewUpdate, UserUpdate
 # schema imports--------
 
 Base.metadata.create_all(bind=engine)
@@ -213,6 +213,57 @@ def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
     return reviews
 # GET REVIEWS CREATED BY A USER---------
 
+# UPDATE USER PARTIALLY-----------------
+@app.patch("/api/users/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if user_update.username is not None and user_update.username != user.username:
+        result = db.execute(select(models.User).where(models.User.username == user_update.username))
+        existing_user = result.scalars().first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User already exists"
+            )
+    if user_update.email is not None and user_update.email != user.email:
+        result = db.execute(select(models.User).where(models.User.email == user_update.email))
+        existing_email = result.scalars().first()
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This email is already taken"
+            )
+  
+    update_data = user_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(user, field, value)
+    
+    db.commit()
+    db.refresh(user)
+    return user
+# UPDATE USER PARTIALLY-----------------
+
+# DELETE USER---------------------------
+@app.delete("/api/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    db.delete(user)
+    db.commit()
+# DELETE USER---------------------------
 
 # GET ALL REVIEWS---------
 @app.get("/api/reviews", response_model=list[ReviewResponse])
@@ -296,8 +347,9 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
 # UPDATE A REVIEW PARTIALLY----------
 @app.patch("/api/reviews/{review_id}", response_model=ReviewResponse)
 def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.id == review_id))
-    review = result.scalars().first()
+    stmt = select(models.Review).where(models.Review.id == review_id).options(joinedload(models.Review.author))
+    review = db.execute(stmt).scalars().first()
+    
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -305,13 +357,14 @@ def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotat
         )
     
     update_data = review_data.model_dump(exclude_unset=True)
-    
-    if "movie_title" in update_data and update_data["movie_title"] != review.movie_title:
-        poster_data = get_movie_poster(update_data["movie_title"])
-        fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
-    
+    title_change = "movie_title" in update_data and update_data["movie_title"] != review.movie_title
+
     for field, value in update_data.items():
         setattr(review, field, value)
+    
+    if title_change:
+        poster_data = get_movie_poster(update_data["movie_title"])
+        review.poster_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
     
     db.commit()
     db.refresh(review)
