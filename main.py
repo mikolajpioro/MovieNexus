@@ -105,12 +105,12 @@ def home(request: Request, db: Annotated[Session, Depends(get_db)]):
         if movie not in random_movies:
             random_movies.append(movie)
     
-    for review in reviews:
-        if not review.poster_url or review.poster_url == "/static/defaultposter.jpg":
-            poster_data = get_movie_poster(review.movie_title)
-            if poster_data and poster_data.get("poster"):
-                review.poster_url = poster_data["poster"]
-                db.add(review)
+    # for review in reviews:
+    #     if not review.poster_url or review.poster_url == "/static/defaultposter.jpg":
+    #         poster_data = get_movie_poster(review.movie_title)
+    #         if poster_data and poster_data.get("poster"):
+    #             review.poster_url = poster_data["poster"]
+    #             db.add(review)
     
     db.commit()
 
