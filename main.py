@@ -105,12 +105,14 @@ def home(request: Request, db: Annotated[Session, Depends(get_db)]):
         if movie not in random_movies:
             random_movies.append(movie)
     
+    #-----OUTDATED------ 
     # for review in reviews:
     #     if not review.poster_url or review.poster_url == "/static/defaultposter.jpg":
     #         poster_data = get_movie_poster(review.movie_title)
     #         if poster_data and poster_data.get("poster"):
     #             review.poster_url = poster_data["poster"]
     #             db.add(review)
+    #-----OUTDATED------ 
     
     db.commit()
 
@@ -149,7 +151,6 @@ def user_reviews(request: Request, user_id: int, db:Annotated[Session, Depends(g
         )
 
 # api endpoints----------------------
-
 # NEW USER CREATION---------
 @app.post("/api/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
