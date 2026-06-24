@@ -199,16 +199,15 @@ def get_user(user_id: int, db:Annotated[Session, Depends(get_db)]):
 
 # GET REVIEWS CREATED BY A USER---------
 @app.get("/api/users/{user_id}/reviews", response_model=list[ReviewResponse])
-def get_users_reviews(user_id: int, db:Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.id == user_id))
-    user = result.scalars().first()
+def get_users_reviews(user_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.User.where(models.User.id == user_id)))
+    user = result.scalars.first()
 
     if not user:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    
     result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
     reviews = result.scalars().all()
     return reviews
