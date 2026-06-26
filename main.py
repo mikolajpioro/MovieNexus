@@ -2,13 +2,15 @@ from fastapi import FastAPI, Request, HTTPException, status, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-import sqlalchemy
-import requests, random
 from typing import Annotated
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload, joinedload
+from contextlib import asynccontextmanager
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+import sqlalchemy
+import httpx, random
 
 # model imports----------
 import models
@@ -19,9 +21,13 @@ from database import Base, engine, get_db
 from schemas import ReviewCreate, ReviewResponse, UserCreate, UserResponse, ReviewUpdate, UserUpdate
 # schema imports---------
 
-Base.metadata.create_all(bind=engine)
+async def lifespan(_app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await engine.dispose()
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory='static'), name='static')
 app.mount("/media", StaticFiles(directory='media'), name='media')
 templates = Jinja2Templates(directory='templates')
@@ -34,7 +40,7 @@ image_base_url = image_url
 api_key = api_key_
 
 
-def get_random_movie():
+async def get_random_movie():
     random_page = random.randint(1, 500)
     
     url = f"{base_url}/discover/movie"
@@ -46,7 +52,8 @@ def get_random_movie():
         "page": random_page
     }
 
-    response = requests.get(url, params=params)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
 
     if response.status_code == 200:
         data = response.json()
@@ -63,7 +70,7 @@ def get_random_movie():
             }
     return None
 
-def get_movie_poster(movie_title: str):
+async def get_movie_poster(movie_title: str):
     url = f"{base_url}/search/movie"
 
     params = {
@@ -75,7 +82,8 @@ def get_movie_poster(movie_title: str):
     }
 
     try:
-        response = requests.get(url, params=params)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params)
 
         if response.status_code == 200:
             data = response.json()
@@ -95,13 +103,16 @@ def get_movie_poster(movie_title: str):
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/reviews", include_in_schema=False, name="reviews")
-def home(request: Request, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review))
+async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        )
     reviews = result.scalars().all()
 
     random_movies = []
     while len(random_movies) < 3:
-        movie = get_random_movie()
+        movie = await get_random_movie()
         if movie not in random_movies:
             random_movies.append(movie)
     
@@ -123,8 +134,11 @@ def home(request: Request, db: Annotated[Session, Depends(get_db)]):
     )
 
 @app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
-def review_page(request: Request, review_id: int, db:Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+async def review_page(request: Request, review_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review))
+        .where(models.Review.id == review_id))
     review = result.scalars().first()
 
     if review:
@@ -150,11 +164,30 @@ def user_reviews(request: Request, user_id: int, db:Annotated[Session, Depends(g
             detail="Couldn't find this user's reviews"
         )
 
+@app.get("/user_reviews/{user_id}", include_in_schema=False, name="users_reviews")
+async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    result = await db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        .where(models.Review.user_id == user_id)
+    )
+    reviews = result.scalars().all()
+    if reviews:
+        title = f"{reviews[0].author.username}'s reviews"
+    return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "user": user, "title": title})
+
 # api endpoints----------------------
 # NEW USER CREATION---------
 @app.post("/api/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.username == user.username))
+async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.username == user.username))
     existing_user = result.scalars().first()
 
     if existing_user:
@@ -163,7 +196,7 @@ def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
             detail="This user already exists"
         )
     
-    result = db.execute(select(models.User).where(models.User.email == user.email))
+    result = await db.execute(select(models.User).where(models.User.email == user.email))
     exisisting_email = result.scalars().first()
 
     if exisisting_email:
@@ -177,15 +210,15 @@ def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
         email = user.email
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
     return new_user
 # NEW USER CREATION---------
 
 # GET A USER BY ID----------
 @app.get("/api/users/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db:Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.id == user_id))
+async def get_user(user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
 
     if user:
@@ -199,8 +232,8 @@ def get_user(user_id: int, db:Annotated[Session, Depends(get_db)]):
 
 # GET REVIEWS CREATED BY A USER---------
 @app.get("/api/users/{user_id}/reviews", response_model=list[ReviewResponse])
-def get_users_reviews(user_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User.where(models.User.id == user_id)))
+async def get_users_reviews(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User.where(models.User.id == user_id)))
     user = result.scalars.first()
 
     if not user:
@@ -208,15 +241,18 @@ def get_users_reviews(user_id: int, db: Annotated[Session, Depends(get_db)]):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
+    result = db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        .where(models.Review.user_id == user_id))
     reviews = result.scalars().all()
     return reviews
 # GET REVIEWS CREATED BY A USER---------
 
 # UPDATE USER PARTIALLY-----------------
 @app.patch("/api/users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.id == user_id))
+async def update_user(user_id: int, user_update: UserUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
         raise HTTPException(
@@ -225,7 +261,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Session, De
         )
     
     if user_update.username is not None and user_update.username != user.username:
-        result = db.execute(select(models.User).where(models.User.username == user_update.username))
+        result = await db.execute(select(models.User).where(models.User.username == user_update.username))
         existing_user = result.scalars().first()
         if existing_user:
             raise HTTPException(
@@ -233,7 +269,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Session, De
                 detail="User already exists"
             )
     if user_update.email is not None and user_update.email != user.email:
-        result = db.execute(select(models.User).where(models.User.email == user_update.email))
+        result = await db.execute(select(models.User).where(models.User.email == user_update.email))
         existing_email = result.scalars().first()
         if existing_email:
             raise HTTPException(
@@ -245,8 +281,8 @@ def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Session, De
     for field, value in update_data.items():
         setattr(user, field, value)
     
-    db.commit()
-    db.refresh(user)
+    await db.commit()
+    await db.refresh(user)
     return user
 # UPDATE USER PARTIALLY-----------------
 
