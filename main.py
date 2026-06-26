@@ -125,7 +125,7 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     #             db.add(review)
     #-----OUTDATED------ 
     
-    db.commit()
+    await db.commit()
 
     return templates.TemplateResponse(
         request,
@@ -137,7 +137,7 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
 async def review_page(request: Request, review_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
-        .options(selectinload(models.Review))
+        .options(selectinload(models.Review.author))
         .where(models.Review.id == review_id))
     review = result.scalars().first()
 
@@ -151,20 +151,6 @@ async def review_page(request: Request, review_id: int, db:Annotated[AsyncSessio
         )
     
 @app.get("/user_reviews/{user_id}", include_in_schema=False, name="user_reviews")
-def user_reviews(request: Request, user_id: int, db:Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.user_id == user_id))
-    reviews = result.scalars().all()
-    
-    if reviews:
-        title = f"{reviews[0].author.username}'s reviews"
-        return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "title": title})
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Couldn't find this user's reviews"
-        )
-
-@app.get("/user_reviews/{user_id}", include_in_schema=False, name="users_reviews")
 async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
@@ -181,7 +167,7 @@ async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession
     reviews = result.scalars().all()
     if reviews:
         title = f"{reviews[0].author.username}'s reviews"
-    return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "user": user, "title": title})
+    return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "title": title})
 
 # api endpoints----------------------
 # NEW USER CREATION---------
@@ -241,7 +227,7 @@ async def get_users_reviews(user_id: int, db: Annotated[AsyncSession, Depends(ge
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    result = db.execute(
+    result = await db.execute(
         select(models.Review)
         .options(selectinload(models.Review.author))
         .where(models.Review.user_id == user_id))
@@ -288,8 +274,8 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Async
 
 # DELETE USER---------------------------
 @app.delete("/api/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.id == user_id))
+async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
         raise HTTPException(
@@ -297,26 +283,32 @@ def delete_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
             detail="User not found"
         )
     
-    db.delete(user)
-    db.commit()
+    await db.delete(user)
+    await db.commit()
 # DELETE USER---------------------------
 
 # GET ALL REVIEWS---------
 @app.get("/api/reviews", response_model=list[ReviewResponse])
-def get_reviews(db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review))
+async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        )
     reviews = result.scalars().all()
     return reviews
 # GET ALL REVIEWS---------
 
 # CREATE A NEW REVIEW---------
 @app.post("/api/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
-def create_review(review: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
-    user = db.execute(select(models.User).where(models.User.id == review.user_id)).scalars().first()
+async def create_review(review: ReviewCreate, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id == review.user_id))
+    user = result.scalars().first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-        
-    poster_data = get_movie_poster(review.movie_title)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    poster_data = await get_movie_poster(review.movie_title)
     fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
 
     new_review = models.Review(
@@ -327,17 +319,21 @@ def create_review(review: ReviewCreate, db: Annotated[Session, Depends(get_db)])
         poster_url=fetched_url
     )
     db.add(new_review)
-    db.commit()
-    db.refresh(new_review)
+    await db.commit()
+    await db.refresh(new_review, attribute_names=["author"])
     
     stmt = select(models.Review).where(models.Review.id == new_review.id).options(joinedload(models.Review.author))
-    return db.execute(stmt).scalars().first()
+    return (await db.execute(stmt)).scalars().first()
+
 # CREATE A NEW REVIEW---------
 
 # GET A REVIEW BY ID----------
 @app.get("/api/reviews/{review_id}", response_model=ReviewResponse)
-def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+async def get_review(review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        .where(models.Review.id == review_id))
     review = result.scalars().first()
     if not review:
         raise HTTPException(
@@ -349,8 +345,9 @@ def get_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
 
 # UPDATE A REVIEW FULLY----------
 @app.put("/api/reviews/{review_id}", response_model=ReviewResponse)
-def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+async def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(
+        select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
     if not review:
         raise HTTPException(
@@ -358,7 +355,7 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
             detail="Review not found"
         )
     if review_data.user_id != review.user_id:
-        result = db.execute(select(models.User).where(models.User.id == review_data.user_id))
+        result = await db.execute(select(models.User).where(models.User.id == review_data.user_id))
         user = result.scalars().first()
         if not user:
             raise HTTPException(
@@ -366,7 +363,7 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
                 detail="User not found"
             )
     if review_data.movie_title != review.movie_title:
-        poster_data = get_movie_poster(review_data.movie_title)
+        poster_data = await get_movie_poster(review_data.movie_title)
         fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
         
     review.movie_title = review_data.movie_title
@@ -375,16 +372,16 @@ def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[
     review.user_id = review_data.user_id
     review.poster_url = fetched_url
     
-    db.commit()
-    db.refresh(review)
+    await db.commit()
+    await db.refresh(review)
     return review
 # UPDATE A REVIEW FULLY----------
 
 # UPDATE A REVIEW PARTIALLY----------
 @app.patch("/api/reviews/{review_id}", response_model=ReviewResponse)
-def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[Session, Depends(get_db)]):
-    stmt = select(models.Review).where(models.Review.id == review_id).options(joinedload(models.Review.author))
-    review = db.execute(stmt).scalars().first()
+async def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
+    stmt = select(models.Review).options(selectinload(models.Review.author)).where(models.Review.id == review_id).options(joinedload(models.Review.author))
+    review = await db.execute(stmt).scalars().first()
     
     if not review:
         raise HTTPException(
@@ -399,44 +396,44 @@ def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotat
         setattr(review, field, value)
     
     if title_change:
-        poster_data = get_movie_poster(update_data["movie_title"])
+        poster_data = await get_movie_poster(update_data["movie_title"])
         review.poster_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
     
-    db.commit()
-    db.refresh(review)
+    await db.commit()
+    await db.refresh(review, attribute_names=["author"])
     return review
 # UPDATE A REVIEW PARTIALLY----------
 
 # DELETE A REVIEW--------------------
 @app.delete("/api/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Review).where(models.Review.id == review_id))
+async def delete_review(review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
-    db.delete(review)
-    db.commit()
+    await db.delete(review)
+    await db.commit()
 # DELETE A REVIEW-------------------
 
 
 
 #error routes------------------
 @app.exception_handler(StarletteHTTPException)
-def general_https_exception_handler(request: Request, exception: StarletteHTTPException):
+async def general_https_exception_handler(request: Request, exception: StarletteHTTPException):
     message = (
         exception.detail
         if exception.detail
         else "An error has occured. Please try again."
     )
 
-    if request.url.path.startswith("/api"):
-        return JSONResponse(
-            status_code = exception.status_code,
-            content = {"detail": message},
-        )
+    message = (
+        exception.detail
+        if exception.detail
+        else "An error has occured :("
+    )
     return templates.TemplateResponse(
         request,
         "error.html",
@@ -449,12 +446,9 @@ def general_https_exception_handler(request: Request, exception: StarletteHTTPEx
     )
 
 @app.exception_handler(RequestValidationError)
-def validation_exception_handler(request: Request, exception: RequestValidationError):
+async def validation_exception_handler(request: Request, exception: RequestValidationError):
     if request.url.path.startswith("/api"):
-        return JSONResponse(
-            status_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
-            content = {"detail": exception.errors()}
-        )
+        return await request_validation_exception_handler(request, exception)
     
     return templates.TemplateResponse(
         request,
