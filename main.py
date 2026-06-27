@@ -133,12 +133,13 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
         {"reviews": reviews, "movies": random_movies, "title": "Home"}
     )
 
-@app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
-async def review_page(request: Request, review_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+@app.get("/reviews{review_id}", include_in_schema=False, name="review_page")
+async def review_page(request: Request, review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
         .options(selectinload(models.Review.author))
-        .where(models.Review.id == review_id))
+        .where(models.Review.id == review_id)
+    )
     review = result.scalars().first()
 
     if review:
@@ -149,6 +150,7 @@ async def review_page(request: Request, review_id: int, db:Annotated[AsyncSessio
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
+
     
 @app.get("/user_reviews/{user_id}", include_in_schema=False, name="user_reviews")
 async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
