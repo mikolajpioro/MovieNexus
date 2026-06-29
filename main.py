@@ -323,10 +323,7 @@ async def create_review(review: ReviewCreate, db: Annotated[AsyncSession, Depend
     db.add(new_review)
     await db.commit()
     await db.refresh(new_review, attribute_names=["author"])
-    
-    stmt = select(models.Review).where(models.Review.id == new_review.id).options(joinedload(models.Review.author))
-    return (await db.execute(stmt)).scalars().first()
-
+    return new_review
 # CREATE A NEW REVIEW---------
 
 # GET A REVIEW BY ID----------
