@@ -7,7 +7,6 @@ from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from contextlib import asynccontextmanager
 from fastapi.exception_handlers import request_validation_exception_handler
 from services.tmbd import get_random_movie
 
