@@ -23,6 +23,7 @@ async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
         .options(selectinload(models.Review.author))
+        .order_by(models.Review.date_posted.desc())
         )
     reviews = result.scalars().all()
     return reviews

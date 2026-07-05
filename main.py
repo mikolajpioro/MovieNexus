@@ -46,6 +46,7 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
         .options(selectinload(models.Review.author))
+        .order_by(models.Review.date_posted.desc())
         )
     reviews = result.scalars().all()
 
@@ -89,7 +90,6 @@ async def review_page(request: Request, review_id: int, db: Annotated[AsyncSessi
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
-
     
 @app.get("/user_reviews/{user_id}", include_in_schema=False, name="user_reviews")
 async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
@@ -104,6 +104,7 @@ async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession
         select(models.Review)
         .options(selectinload(models.Review.author))
         .where(models.Review.user_id == user_id)
+        .order_by(models.Review.date_posted.desc())
     )
     reviews = result.scalars().all()
     if reviews:
