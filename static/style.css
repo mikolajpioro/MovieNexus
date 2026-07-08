@@ -322,9 +322,16 @@ body{
 
 #top_rated_button:hover, #latest_reviews_button:hover, #library_button:hover{
     background-color: rgb(29, 85, 109);
-     border: 2px solid rgb(158, 68, 43);
+    border: 2px solid rgb(158, 68, 43);
 }
 
 .pfp_link{
     cursor: pointer;
+}
+
+.post_actions{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
 }

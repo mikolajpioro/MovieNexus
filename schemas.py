@@ -22,7 +22,7 @@ class UserUpdate(BaseModel):
 
 class ReviewBase(BaseModel):
     movie_title: str = Field(min_length=1, max_length=100)
-    score: str = Field(min_length=1, max_length=100)
+    score: str | None = Field(default=None, min_length=1, max_length=10)
     content: str = Field(min_length=1)
 
 class ReviewCreate(ReviewBase):
@@ -38,5 +38,5 @@ class ReviewResponse(ReviewBase):
 
 class ReviewUpdate(BaseModel):
     movie_title: str | None = Field(default=None, min_length=1, max_length=100)
-    score: str | None = Field(default=None, min_length=1, max_length=100)
+    score: str | None = Field(default=None, min_length=1, max_length=10)
     content: str | None = Field(default=None, min_length=1)

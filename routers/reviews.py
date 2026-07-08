@@ -108,25 +108,30 @@ async def update_review_full(review_id: int, review_data: ReviewCreate, db: Anno
 # UPDATE A REVIEW PARTIALLY----------
 @router.patch("/{review_id}", response_model=ReviewResponse)
 async def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
-    stmt = select(models.Review).options(selectinload(models.Review.author)).where(models.Review.id == review_id).options(joinedload(models.Review.author))
-    review = await db.execute(stmt).scalars().first()
-    
+    stmt = (
+        select(models.Review)
+        .options(selectinload(models.Review.author))
+        .where(models.Review.id == review_id)
+    )
+    result = await db.execute(stmt)
+    review = result.scalars().first()
+
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
-    
+
     update_data = review_data.model_dump(exclude_unset=True)
     title_change = "movie_title" in update_data and update_data["movie_title"] != review.movie_title
 
     for field, value in update_data.items():
         setattr(review, field, value)
-    
+
     if title_change:
         poster_data = await get_movie_poster(update_data["movie_title"])
         review.poster_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
-    
+
     await db.commit()
     await db.refresh(review, attribute_names=["author"])
     return review
