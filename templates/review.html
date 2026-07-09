@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% block content %}
 
     <div class="user_review_container">
@@ -22,11 +21,6 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="user_review_buttons">
-                            <button id="edit">Edit</button>
-                            <button id="delete">Delete</button>
-            </div> -->
-            <!-- Only show edit/delete options if user_id is 1 (TEMPORARY - until authentication) -->
         {% if review.user_id == 1 %}
             <div class="post_actions mt-3 pt-3">
             <button type="button"
@@ -118,6 +112,8 @@
                             data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
                 </div>
+                <!-- passing via data line 130 -->
+                <div id="editForm" data-review-id="{{ review.id }}"></div>
             </div>
         </div>
     </div>
@@ -129,9 +125,9 @@
       hideModal,
       showModal,
     } from "/static/utils.js";
-
-    // Get post ID from Jinja2 template
-    const reviewId = {{ review.id }};
+    // Had to change that as js doesn't understand Jinja2 syntax so i pass the value via data-
+    //  before it was this: const reviewId = {{ review.id }}
+    const reviewId = document.getElementById("editForm").dataset.reviewId;
     // Edit Post Form Handler
     const editForm = document.getElementById("editPostForm");
     editForm.addEventListener("submit", async (event) => {
