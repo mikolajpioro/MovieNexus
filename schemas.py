@@ -7,18 +7,27 @@ class UserBase(BaseModel):
     email: EmailStr = Field(max_length=100)
 
 class UserCreate(UserBase):
-    pass
+    password: str = Field(min_length=8)
 
-class UserResponse(UserBase):
+class UserPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    username: str
     image_file: str | None
     image_path: str
+
+class UserPrivate(UserPublic):
+    email: EmailStr
+
 
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=100)
     email: str | None = Field(default=None, max_length=100)
     image_file : str | None = Field(default=None, min_length=1, max_length=50)
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 class ReviewBase(BaseModel):
     movie_title: str = Field(min_length=1, max_length=100)
@@ -34,7 +43,7 @@ class ReviewResponse(ReviewBase):
     date_posted: datetime
     poster_url: Optional[str] = None
     user_id: int
-    author: UserResponse
+    author: UserPublic
 
 class ReviewUpdate(BaseModel):
     movie_title: str | None = Field(default=None, min_length=1, max_length=100)

@@ -47,7 +47,7 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
         select(models.Review)
         .options(selectinload(models.Review.author))
         .order_by(models.Review.date_posted.desc())
-        )
+    )
     reviews = result.scalars().all()
 
     random_movies = []
@@ -56,22 +56,8 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
         if movie not in random_movies:
             random_movies.append(movie)
     
-    #-----OUTDATED------ 
-    # for review in reviews:
-    #     if not review.poster_url or review.poster_url == "/static/defaultposter.jpg":
-    #         poster_data = get_movie_poster(review.movie_title)
-    #         if poster_data and poster_data.get("poster"):
-    #             review.poster_url = poster_data["poster"]
-    #             db.add(review)
-    #-----OUTDATED------ 
-    
     await db.commit()
-
-    return templates.TemplateResponse(
-        request,
-        "home.html",
-        {"reviews": reviews, "movies": random_movies, "title": "Home"}
-    )
+    return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "movies": random_movies, "title": "Home"})
 
 @app.get("/reviews{review_id}", include_in_schema=False, name="review_page")
 async def review_page(request: Request, review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
