@@ -22,6 +22,7 @@ from config import settings
 
 router = APIRouter()
 
+# CREATE USER---------------------------
 @router.post("", response_model=UserPrivate, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.User).where(func.lower(models.User.username) == user.username.lower()))
@@ -51,7 +52,9 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
     await db.commit()
     await db.refresh(new_user)
     return new_user
+# CREATE USER---------------------------
 
+# LOGIN---------------------------------
 # OAuth2PasswordRequestForm uses "username" field but we treat it as email
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
@@ -78,8 +81,9 @@ async def login_for_access_token(
         expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+# LOGIN---------------------------------
 
-    ## get_current_user
+# GET CURRENT USER----------------------
 @router.get("/me", response_model=UserPrivate)
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -115,19 +119,21 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+# GET CURRENT USER----------------------
 
+# GET A USER BY ID----------
 @router.get("/{user_id}", response_model=UserPublic)
-async def get_user(user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
-
-    if user:
-        return user
-    else:
+    
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="user not found"
         )
+    else:
+        return user
 # GET A USER BY ID----------
 
 # GET REVIEWS CREATED BY A USER---------
@@ -209,3 +215,4 @@ async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]
     
     await db.delete(user)
     await db.commit()
+# DELETE USER---------------------------
