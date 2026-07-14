@@ -28,14 +28,17 @@
             <!-- Shown when logged in (hidden by default, shown via JS) -->
              
             <div id="loggedInNav" class="nav_group">
+                <!-- add max width -->
+            <span id="usernameDisplay" class="navbar-text me-md-2"></span>
+                <!-- add max width -->
             <button class="login_button"
                     type="button"
                     data-bs-toggle="modal"
                     data-bs-target="#createPostModal">New Post</button>
-            <span id="usernameDisplay" class="navbar-text me-md-2"></span>
             <button class="register_button"
                     type="button"
                     id="logoutBtn">Logout</button>
+            <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
             </div>
             <!-- Shown when logged out -->
             <div id="loggedOutNav" class="nav_group">

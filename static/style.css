@@ -6,6 +6,7 @@ body{
 }
 
 .nav_bar {
+    position: relative;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -21,7 +22,7 @@ body{
     height: 100px;
 }
 
-.search_bar{
+.search_bar {
     width: 400px;
     height: 30px;
     background-color: transparent;
@@ -29,8 +30,11 @@ body{
     font-style: bold;
     border: 2px solid rgb(29, 85, 109);
     border-radius: 10px;
-    margin-left: 20%;
-
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+    margin-top: -6px;
 }
 
 .swirly{
