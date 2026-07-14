@@ -97,6 +97,16 @@ async def user_reviews(request: Request, user_id: int, db:Annotated[AsyncSession
         title = f"{reviews[0].author.username}'s reviews"
     return templates.TemplateResponse(request, "users_reviews.html", {"reviews": reviews, "title": title})
 
+# Register and Login ----------------
+@app.get("/login", include_in_schema=False)
+async def login_page(request: Request):
+    return templates.TemplateResponse(request, "login.html", {"title": "Login"})
+
+@app.get("/register", include_in_schema=False)
+async def register_page(request: Request):
+    return templates.TemplateResponse(request, "register.html", {"title": "Register"})
+# Register and Login ----------------
+
 #error routes------------------
 @app.exception_handler(StarletteHTTPException)
 async def general_https_exception_handler(request: Request, exception: StarletteHTTPException):

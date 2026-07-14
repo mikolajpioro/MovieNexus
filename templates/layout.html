@@ -15,14 +15,33 @@
                 <input type="text" placeholder="Search..." class="search_bar">
             </div>
 
-            <div class="nav_group">
+            <!-- <div class="nav_group">
                 <button class="login_button"
                                     type="button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#createPostModal">New Post</button>
-                <button class="login_button">Log in</button>
+                <button class="login_button" >Log in</button>
                 <button class="register_button">Register</button>
                 <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
+            </div> -->
+
+            <!-- Shown when logged in (hidden by default, shown via JS) -->
+             
+            <div id="loggedInNav" class="nav_group">
+            <button class="login_button"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createPostModal">New Post</button>
+            <span id="usernameDisplay" class="navbar-text me-md-2"></span>
+            <button class="register_button"
+                    type="button"
+                    id="logoutBtn">Logout</button>
+            </div>
+            <!-- Shown when logged out -->
+            <div id="loggedOutNav" class="nav_group">
+            <a href="{{ url_for('login_page') }}"> <button class="login_button">Log in</button> </a>
+            <a href="{{ url_for('register_page') }}"> <button class="register_button">Register</button> </a>
+            <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
             </div>
         </div>
 
@@ -30,6 +49,34 @@
             {% block content %}
             {% endblock content %}
         </main>
+
+        <script type="module">
+        import { getCurrentUser, logout } from '/static/auth.js';
+
+        // Update navbar based on auth state
+        async function updateAuthUI() {
+            const user = await getCurrentUser();
+            const loggedInNav = document.getElementById('loggedInNav');
+            const loggedOutNav = document.getElementById('loggedOutNav');
+
+            if (user) {
+            loggedInNav.classList.remove('d-none');
+            loggedInNav.classList.add('d-flex');
+            loggedOutNav.classList.add('d-none');
+            document.getElementById('usernameDisplay').textContent = user.email;
+            } else {
+            loggedInNav.classList.add('d-none');
+            loggedInNav.classList.remove('d-flex');
+            loggedOutNav.classList.remove('d-none');
+            }
+        }
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Update UI on page load
+        updateAuthUI();
+        </script>
 
         <!--MODALS---------------------->
         <!-- Create post modal -->
