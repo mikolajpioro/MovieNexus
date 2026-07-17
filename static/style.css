@@ -339,3 +339,8 @@ body{
     align-items: center;
     justify-content: center;
 }
+
+#usernameDisplay{
+    max-width: 150px;
+    text-overflow: ellipsis;
+}
