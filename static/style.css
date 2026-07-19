@@ -354,11 +354,11 @@ input.form-control{
     max-width: 350px;
 }
 
-#registerButton{
+button.btn{
     background-color: rgb(158, 68, 43);
     border: none;
 }
 
-#registerButton:hover{
+button.btn:hover{
     background-color: rgb(29, 85, 109);
 }
