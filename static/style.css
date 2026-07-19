@@ -344,3 +344,21 @@ body{
     max-width: 150px;
     text-overflow: ellipsis;
 }
+
+#registerForm.input{
+    background-color: rgb(247, 241, 227);
+}
+
+input.form-control{
+    background-color: rgb(247, 241, 227);
+    max-width: 350px;
+}
+
+#registerButton{
+    background-color: rgb(158, 68, 43);
+    border: none;
+}
+
+#registerButton:hover{
+    background-color: rgb(29, 85, 109);
+}
