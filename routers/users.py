@@ -138,9 +138,9 @@ async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
 
 # GET REVIEWS CREATED BY A USER---------
 @router.get("/{user_id}/reviews", response_model=list[ReviewResponse])
-async def get_users_reviews(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(select(models.User.where(models.User.id == user_id)))
-    user = result.scalars.first()
+async def get_user_reviews(user_id: int, db:Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.User).where(models.User.id) == user_id)
+    user = result.scalars().first()
 
     if not user:
         raise HTTPException(
