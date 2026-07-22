@@ -14,7 +14,7 @@ from services.tmbd import get_random_movie
 import models
 from database import Base, engine, get_db
 from routers import reviews, users
-# model imports----------
+# model and router imports----------
 
 async def lifespan(_app: FastAPI):
     async with engine.begin() as conn:
@@ -107,7 +107,7 @@ async def register_page(request: Request):
     return templates.TemplateResponse(request, "register.html", {"title": "Register"})
 # Register and Login -----------------
 
-#error routes-------------------
+#error routes------------------
 @app.exception_handler(StarletteHTTPException)
 async def general_https_exception_handler(request: Request, exception: StarletteHTTPException):
     message = (
@@ -147,4 +147,4 @@ async def validation_exception_handler(request: Request, exception: RequestValid
         },
         status_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
     )
-#error routes-------------------
+#error routes------------------
