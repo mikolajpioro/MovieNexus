@@ -28,10 +28,10 @@ app.mount("/media", StaticFiles(directory='media'), name='media')
 
 templates = Jinja2Templates(directory='templates')
 
-# routers----------
+# routers-----------
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(reviews.router, prefix="/api/reviews", tags=["reviews"])
-# routers----------
+# routers-----------
 
 from keys import url, image_url, api_key_
 # "https://api.themoviedb.org/3"
