@@ -362,3 +362,11 @@ button.btn{
 button.btn:hover{
     background-color: rgb(29, 85, 109);
 }
+
+#usernameDisplay{
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
