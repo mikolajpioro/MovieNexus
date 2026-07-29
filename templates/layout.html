@@ -207,7 +207,7 @@
         if (response.ok) {
         const data = await response.json();
         document.getElementById("successMessage").textContent =
-            `Post "${data.title}" created successfully!`;
+            `Post "${data.movie_title}" created successfully!`;
 
         hideModal("createPostModal");
         showModal("successModal");
