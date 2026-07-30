@@ -178,7 +178,7 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Annotated[Async
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="User already exists"
             )
-    if user_update.email is not None and user_update.email.lower() != user.email:
+    if user_update.email is not None and user_update.email.lower() != user.email.lower():
         result = await db.execute(select(models.User)
             .where(func.lower(models.User.email) == user_update.email.lower())
         )
