@@ -2,10 +2,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload
 import models
 from database import get_db
 from schemas import ReviewCreate, ReviewResponse, ReviewUpdate
+from auth import CurrentUser
 
 from services.tmbd import get_movie_poster
 
@@ -31,14 +32,8 @@ async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
 
 # CREATE A NEW REVIEW---------
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
-async def create_review(review: ReviewCreate, db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(select(models.User).where(models.User.id == review.user_id))
-    user = result.scalars().first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+async def create_review(review: ReviewCreate, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
+   
     poster_data = await get_movie_poster(review.movie_title)
     fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
 
@@ -46,7 +41,7 @@ async def create_review(review: ReviewCreate, db: Annotated[AsyncSession, Depend
         movie_title=review.movie_title,
         score=review.score,
         content=review.content,
-        user_id=review.user_id,
+        user_id=current_user.id,
         poster_url=fetched_url
     )
     db.add(new_review)
@@ -73,7 +68,7 @@ async def get_review(review_id: int, db: Annotated[AsyncSession, Depends(get_db)
 
 # UPDATE A REVIEW FULLY----------
 @router.put("/{review_id}", response_model=ReviewResponse)
-async def update_review_full(review_id: int, review_data: ReviewCreate, db: Annotated[AsyncSession, Depends(get_db)]):
+async def update_review_full(review_id: int, current_user: CurrentUser, review_data: ReviewCreate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
@@ -82,14 +77,13 @@ async def update_review_full(review_id: int, review_data: ReviewCreate, db: Anno
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
-    if review_data.user_id != review.user_id:
-        result = await db.execute(select(models.User).where(models.User.id == review_data.user_id))
-        user = result.scalars().first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
+
+    if review.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this review"
+        )
+    
     if review_data.movie_title != review.movie_title:
         poster_data = await get_movie_poster(review_data.movie_title)
         fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
@@ -97,7 +91,6 @@ async def update_review_full(review_id: int, review_data: ReviewCreate, db: Anno
     review.movie_title = review_data.movie_title
     review.score = review_data.score
     review.content = review_data.content
-    review.user_id = review_data.user_id
     review.poster_url = fetched_url
     
     await db.commit()
@@ -107,7 +100,7 @@ async def update_review_full(review_id: int, review_data: ReviewCreate, db: Anno
 
 # UPDATE A REVIEW PARTIALLY----------
 @router.patch("/{review_id}", response_model=ReviewResponse)
-async def update_review_partial(review_id: int, review_data: ReviewUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
+async def update_review_partial(review_id: int, current_user: CurrentUser, review_data: ReviewUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
         .options(selectinload(models.Review.author))
@@ -119,6 +112,12 @@ async def update_review_partial(review_id: int, review_data: ReviewUpdate, db: A
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
+        )
+
+    if review.user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this reivew"
         )
     
     updated_data = review_data.model_dump(exclude_unset=True)
@@ -138,7 +137,7 @@ async def update_review_partial(review_id: int, review_data: ReviewUpdate, db: A
 
 # DELETE A REVIEW--------------------
 @router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_review(review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+async def delete_review(review_id: int, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.Review).where(models.Review.id == review_id))
     review = result.scalars().first()
     if not review:
@@ -146,5 +145,12 @@ async def delete_review(review_id: int, db: Annotated[AsyncSession, Depends(get_
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found"
         )
+
+    if review.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this review",
+        )
+    
     await db.delete(review)
     await db.commit()

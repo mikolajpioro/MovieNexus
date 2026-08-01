@@ -19,7 +19,6 @@ class UserPublic(BaseModel):
 class UserPrivate(UserPublic):
     email: EmailStr
 
-
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=100)
     email: str | None = Field(default=None, max_length=100)
@@ -35,7 +34,7 @@ class ReviewBase(BaseModel):
     content: str = Field(min_length=1)
 
 class ReviewCreate(ReviewBase):
-    user_id: int
+    pass 
 
 class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
