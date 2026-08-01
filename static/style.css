@@ -191,6 +191,13 @@ body{
     object-fit: cover;
 }
 
+.single_review_movie_poster{
+    width: 120px;
+    height: 150px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
 .review_movie_title {
     text-align: left; 
     text-decoration: none;
@@ -201,11 +208,28 @@ body{
     margin-bottom: 2px;
 }
 
+.single_review_movie_title {
+    text-align: left; 
+    text-decoration: none;
+    font-size: 16px;
+    max-width: 110px;
+    word-wrap: break-word;
+    display: block;
+    margin-bottom: 2px;
+}
+
 .review_movie_score{
     font-size: 12px;
-    margin-bottom: 2%;
     margin-top: 0;
     margin-bottom: 2%;   
+    color: rgba(40, 85, 109, 0.8);
+    font-weight: bold;
+}
+
+.single_review_movie_score{
+    font-size: 14px;
+    margin-bottom: 2%;
+    margin-top: 0;  
     color: rgba(40, 85, 109, 0.8);
     font-weight: bold;
 }
