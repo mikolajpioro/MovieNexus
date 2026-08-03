@@ -14,20 +14,18 @@
             <div class="search_container">
                 <input type="text" placeholder="Search..." class="search_bar">
             </div>
-             
-            <div id="loggedInNav" class="nav_group">
-                <!-- add max width -->
-            <span id="usernameDisplay" class="navbar-text me-md-2"></span>
-                <!-- add max width -->
-            <button class="login_button"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createPostModal">New Post</button>
-            <button class="register_button"
-                    type="button"
-                    id="logoutBtn">Logout</button>
-            <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
+
+            <!-- logged in nav -->
+            <div id="loggedInNav" class="nav_group d-none">
+                <button class="login_button"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#createPostModal">New Post</button>
+                <a class="register_button" href="{{ url_for('account_page') }}" id="accountBtn">Account</a>
+                <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
             </div>
+            <!-- logged in nav -->
+
             <!-- Shown when logged out -->
             <div id="loggedOutNav" class="nav_group">
             <a href="{{ url_for('login_page') }}"> <button class="login_button">Log in</button> </a>
@@ -42,31 +40,35 @@
         </main>
 
         <script type="module">
-        import { getCurrentUser, logout } from '/static/auth.js';
+            import { getCurrentUser } from '/static/auth.js';
 
-        // Update navbar based on auth state
-        async function updateAuthUI() {
-            const user = await getCurrentUser();
-            const loggedInNav = document.getElementById('loggedInNav');
-            const loggedOutNav = document.getElementById('loggedOutNav');
+            async function updateAuthUI() {
+                const loggedInNav = document.getElementById('loggedInNav');
+                const loggedOutNav = document.getElementById('loggedOutNav');
+                const accountBtn = document.getElementById('accountBtn');
 
-            if (user) {
-            loggedInNav.classList.remove('d-none');
-            loggedInNav.classList.add('d-flex');
-            loggedOutNav.classList.add('d-none');
-            document.getElementById('usernameDisplay').textContent = user.email;
-            } else {
-            loggedInNav.classList.add('d-none');
-            loggedInNav.classList.remove('d-flex');
-            loggedOutNav.classList.remove('d-none');
+                let user = null;
+                try {
+                    user = await getCurrentUser();
+                    console.log('getCurrentUser() returned:', user);
+                } catch(err){
+                    console.error('getCurrentUser() failed:', err);
+                }
+
+                if (user) {
+                    loggedInNav.classList.remove('d-none');
+                    loggedInNav.classList.add('d-flex');
+                    loggedOutNav.classList.add('d-none');
+                    accountBtn.textContent = user.username;
+                } else {
+                    loggedInNav.classList.add('d-none');
+                    loggedInNav.classList.remove('d-flex');
+                    loggedOutNav.classList.remove('d-none');
+                    accountBtn.textContent = 'Account';
+                }
             }
-        }
 
-        // Logout handler
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-
-        // Update UI on page load
-        updateAuthUI();
+            updateAuthUI();
         </script>
 
         <!--MODALS---------------------->
@@ -168,6 +170,7 @@
     hideModal,
     showModal,
     } from "/static/utils.js";
+    import { getToken } from "/static/auth.js"
 
     const createForm = document.getElementById("createPostForm");
 
@@ -175,12 +178,17 @@
     // Stop default form submission - we'll handle it with JavaScript
     event.preventDefault();
 
+    const token = getToken();
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+
     // Gather form values into a plain object {title: "...", content: "..."}
     const formData = new FormData(createForm);
     const postData = Object.fromEntries(formData.entries());
 
-    // TEMPORARY - hardcoded until authorization (Tutorial 11)
-    postData.user_id = 1;
+    
 
     try {
         // POST to API as JSON
@@ -188,9 +196,15 @@
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(postData),
         });
+
+        if (response.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
 
         if (response.ok) {
         const data = await response.json();
