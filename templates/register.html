@@ -56,6 +56,10 @@
           passwordError.classList.remove('d-none');
           return;
         }
+        
+        const registerBtn = document.getElementById('registerButton');
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating account...';
 
         const formData = new FormData(registerForm);
         const userData = {
@@ -92,6 +96,9 @@
             'Network error. Please check your connection and try again.';
           showModal('errorModal');
         }
+
+        registerBtn.disabled = false;
+      
       });
     </script>
 {% endblock scripts %}
