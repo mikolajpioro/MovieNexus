@@ -396,7 +396,8 @@ button.btn:hover{
 }
 
 #accountBtn{
-    width: 100px;
+    width: auto;
+    padding: 7px;
     height: 50px;
     box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.4);
     background-color: rgb(158, 68, 43);
