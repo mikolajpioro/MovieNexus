@@ -180,6 +180,20 @@ body{
     text-decoration: none;
 }
 
+.reviewer_name:hover{
+    color: rgb(29, 85, 109);
+    cursor: pointer;
+    text-shadow:
+      0 0 7px #45a1d6,
+      0 0 10px #45a1d6,
+      0 0 21px #45a1d6,
+      0 0 42px #63b2e0,
+      0 0 82px #63b2e0,
+      0 0 92px #63b2e0,
+      0 0 102px #63b2e0,
+      0 0 151px #63b2e0;
+}
+
 .review_date{
     font-size: 12px;
 }
@@ -247,17 +261,7 @@ body{
 }
 
 .review_sauce:hover{
-    color: rgb(29, 85, 109);
     cursor: pointer;
-    text-shadow:
-      0 0 7px #45a1d6,
-      0 0 10px #45a1d6,
-      0 0 21px #45a1d6,
-      0 0 42px #63b2e0,
-      0 0 82px #63b2e0,
-      0 0 92px #63b2e0,
-      0 0 102px #63b2e0,
-      0 0 151px #63b2e0;
 }
 
 .user_review_container{
@@ -415,4 +419,9 @@ button.btn:hover{
 #accountBtn:hover{
     background-color: rgb(29, 85, 109);
     box-shadow: 5px 5px 5px rgb(158, 68, 43);
+}
+
+.account_page_content{
+    display: flex;
+    flex-direction: column;
 }

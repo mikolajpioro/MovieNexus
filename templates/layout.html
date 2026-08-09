@@ -26,12 +26,13 @@
             </div>
             <!-- logged in nav -->
 
-            <!-- Shown when logged out -->
+            <!-- logged out nav -->
             <div id="loggedOutNav" class="nav_group">
             <a href="{{ url_for('login_page') }}"> <button class="login_button">Log in</button> </a>
             <a href="{{ url_for('register_page') }}"> <button class="register_button">Register</button> </a>
             <img src="{{ url_for('static', path='swirly.png') }}" class="swirly" alt="swirly">
             </div>
+            <!-- logged out nav -->
         </div>
 
         <main>
