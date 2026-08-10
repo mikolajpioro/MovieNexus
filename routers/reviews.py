@@ -114,7 +114,7 @@ async def update_review_partial(review_id: int, current_user: CurrentUser, revie
             detail="Review not found"
         )
 
-    if review.user_id != current_user:
+    if review.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this reivew"

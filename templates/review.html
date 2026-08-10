@@ -146,10 +146,10 @@
 
         const formData = new FormData(editForm);
         const postData = Object.fromEntries(formData.entries());
-        delete postData.post_id;
+        delete postData.review_id;
 
         try {
-            const response = await fetch(`/api/posts/${reviewId}`, {
+            const response = await fetch(`/api/reviews/${reviewId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
