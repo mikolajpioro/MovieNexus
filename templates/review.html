@@ -209,7 +209,20 @@
                 showModal('errorModal');
                 return;
             }
+            if (response.ok) {
+                document.getElementById('successMessage').textContent =
+                    'The review has been deleted';
+                hideModal('deleteModal');
+                showModal('successModal');
 
+                document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
+                    window.location.reload();
+                }, { once: true });
+
+                // Add sending to the home page after the succes modal here
+                // Add sending to the home page after the succes modal here
+                // Add sending to the home page after the succes modal here
+            }
             if (response.status === 204) {
                 window.location.href = '/';
             } else {
@@ -221,7 +234,7 @@
         } catch (error) {
             document.getElementById('errorMessage').textContent =
                 'Network error. Please check your connection and try again.';
-            showModal('errorModal');
+                showModal('errorModal');
         }
     });
 
