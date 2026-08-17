@@ -19,6 +19,7 @@ api_key = api_key_
 
 router = APIRouter()
 
+# GET ALL REVIEWS---------
 @router.get("", response_model=list[ReviewResponse])
 async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
