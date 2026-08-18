@@ -34,17 +34,18 @@ async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
 # CREATE A NEW REVIEW---------
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(review: ReviewCreate, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
-   
+
     poster_data = await get_movie_poster(review.movie_title)
     fetched_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
 
     new_review = models.Review(
-        movie_title=review.movie_title,
-        score=review.score,
-        content=review.content,
-        user_id=current_user.id,
-        poster_url=fetched_url
+        movie_title = review.movie_title,
+        score = review.score,
+        content = review.content,
+        user_id = current_user.id,
+        poster_url = fetched_url
     )
+
     db.add(new_review)
     await db.commit()
     await db.refresh(new_review, attribute_names=["author"])
