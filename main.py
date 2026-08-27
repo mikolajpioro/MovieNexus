@@ -59,7 +59,7 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     await db.commit()
     return templates.TemplateResponse(request, "home.html", {"reviews": reviews, "movies": random_movies, "title": "Home"})
 
-@app.get("/reviews{review_id}", include_in_schema=False, name="review_page")
+@app.get("/reviews/{review_id}", include_in_schema=False, name="review_page")
 async def review_page(request: Request, review_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.Review)
