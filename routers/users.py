@@ -125,7 +125,7 @@ async def get_user_reviews(user_id: int, db: Annotated[AsyncSession, Depends(get
     return reviews
 # GET REVIEWS CREATED BY A USER---------
 
-# UPDATE USER PARTIALLY-----------------
+# UPDATE USER PARTIALLY----------------
 @router.patch("/{user_id}", response_model=UserPrivate)
 async def update_user(user_id: int, current_user: CurrentUser, user_update: UserUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
 
@@ -175,7 +175,7 @@ async def update_user(user_id: int, current_user: CurrentUser, user_update: User
     await db.commit()
     await db.refresh(user)
     return user
-# UPDATE USER PARTIALLY-----------------
+# UPDATE USER PARTIALLY----------------
 
 # DELETE USER---------------------------
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
