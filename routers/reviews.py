@@ -135,6 +135,42 @@ async def update_review_partial(review_id: int, current_user: CurrentUser, revie
     await db.commit()
     await db.refresh(review, attribute_names=["author"])
     return review
+
+# @router.patch("/{review_id}", response_model=ReviewResponse)
+# async def update_review_partial(review_id: int, current_user: CurrentUser, review_data: ReviewUpdate, db: Annotated[AsyncSession, Depends(get_db)]):
+#     result = await db.execute(
+#         select(models.Review)
+#         .options(selectinload(models.Review.author))
+#         .where(models.Review.id == review_id)
+#         )
+#     review = result.scalars().first()
+
+#     if not review:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Review not found"
+#         )
+
+#     if review.user_id != current_user.id:
+#         raise HTTPException(
+#             status_code=status.HTTP_403_FORBIDDEN,
+#             detail="You are not allowed to edit this post"
+#         )
+
+#     updated_data = review_data.model_dump(exclude_unset=True)
+#     title_change = ""
+
+#     if review_data.movie_title != review.movie_title:
+#         title_change = review_data.movie_title
+
+#     if title_change:
+#         poster_data = await get_movie_poster(updated_data["movie_title"])
+#         review.poster_url = poster_data.get("poster") if poster_data else "/static/defaultposter.jpg"
+
+#     await db.commit()
+#     await db.refresh(review, attribute_names=["author"])
+#     return review
+
 # UPDATE A REVIEW PARTIALLY----------
 
 # DELETE A REVIEW--------------------
