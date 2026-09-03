@@ -4,44 +4,53 @@ body{
     display: flex;
     flex-direction: column;
 }
-
+ 
+/* ===== NAV BAR ===== */
 .nav_bar {
     position: relative;
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     border-bottom: 3px solid rgb(29, 85, 109);
-    padding: 0 20px;
+    padding: 6px 20px;
     box-sizing: border-box;
 }
-
+ 
 .logo{
     width: 90px;
     height: 100px;
+    max-width: 100%;
+}
+
+.search_container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    width: calc(100% - 320px); /* Dynamically adjusts maximum width based on logo and button spacing */ 
+    max-width: 400px;
 }
 
 .search_bar {
-    width: 25%;
-    height: 30px;
+    width: 100%;
+    height: 32px;
     background-color: transparent;
-    font-family: Verdana;
-    font-style: bold;
+    font-family: Verdana, sans-serif;
+    font-weight: bold;
     border: 2px solid rgb(29, 85, 109);
     border-radius: 10px;
-    position: absolute;
-    left: 50%;
-    top: 55%;
-    transform: translate(-50%, -50%);
-    margin-top: -6px;
+    box-sizing: border-box;
+    padding: 0 10px;
 }
-
+ 
 .swirly{
     width: 50px;
     height: 100px;
+    max-width: 100%;
 }
-
+ 
 .login_button, .register_button{
     width: 100px;
     height: 50px;
@@ -53,38 +62,44 @@ body{
     font-weight: bold;
     font-size: 15px;
 }
-
+ 
 .login_button:hover{
     background-color: rgb(29, 85, 109);
     box-shadow: 5px 5px 5px rgb(158, 68, 43);
 }
-
+ 
 .register_button:hover{
     background-color: rgb(29, 85, 109);
     box-shadow: 5px 5px 5px rgb(158, 68, 43);
 }
-
+ 
 .nav_group{
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 15px;
+    margin-left: auto;
 }
-
+ 
+/* ===== DISCOVER SECTION ===== */
 .discover_container{
     display: flex;
     flex-direction: column;
     background:linear-gradient(to right, transparent, rgb(158, 68, 43), transparent);
     position: relative;
-    height: 310px;
+    height: auto;                  /* CHANGED: was fixed 310px, now grows with wrapped content */
+    min-height: 310px;             /* CHANGED: keeps the original look on desktop */
+    padding: 20px 0;               /* CHANGED: breathing room when content wraps */
     width: 90%;
     justify-content: center;
     align-items: center;
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
     font-family: Verdana;
     font-style: bold;
 }
-
+ 
 .discover_container::after {
     content: "";
     position: absolute;
@@ -95,57 +110,64 @@ body{
     background: linear-gradient(to bottom, transparent, rgb(249, 211, 162));
     pointer-events: none;
 }
-
+ 
 .discover_paragraph{
     font-family: sans-serif;
-    font-size: 25px;
+    font-size: clamp(16px, 4vw, 25px);   /* CHANGED: scales down on narrow screens */
+    text-align: center;
+    padding: 0 10px;
 }
-
+ 
 .discover_movie_row{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;                     /* CHANGED: cards wrap instead of overflowing */
     justify-content: center;
-    gap: 130px;
+    gap: clamp(15px, 5vw, 130px);        /* CHANGED: was a fixed 130px, now scales with viewport */
     margin-bottom: 2%;
 }
-
+ 
 .discover_movie_card{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 10px;
     margin: 0;
 }
-
+ 
 .discover_movie_poster{
     height: 180px;
     width: 130px;
+    max-width: 100%;
     border-radius: 10px;
 }
-
+ 
 .discover_movie_title{
     width: 180px;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
     margin-top: 5px;
 }
-
+ 
+/* ===== REVIEWS ===== */
 .reviews_container{
     display: flex;
     flex-direction: column;
     row-gap: 20px;
     font-family: Verdana;
-    padding-bottom: 5%;
+    padding: 0 15px 5% 15px;      /* CHANGED: side padding so cards don't touch screen edges */
     margin-top: 4%;
     justify-content: center;
+    align-items: center;          /* CHANGED: keeps cards centered as they shrink */
 }
-
+ 
 .review_card{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;              /* CHANGED: lets poster/content stack on very narrow screens */
     background-color: rgb(158, 68, 43);
     border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
@@ -155,17 +177,18 @@ body{
     padding-bottom: 15px;
     width: 100%;
     max-width: 750px;
+    box-sizing: border-box;       /* CHANGED: prevents padding from pushing width past 100% */
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-
+ 
 .review_card_pfp{
-    margin: 0;
     margin: 15px;
     border-radius: 100px;
     width: 70px;
     height: 70px;
+    flex-shrink: 0;               /* CHANGED: keep avatar from getting squished when card wraps */
 }
-
+ 
 .review_content{
     display: flex;
     font-family: Verdana;
@@ -173,13 +196,14 @@ body{
     text-decoration: none;
     align-items: flex-start;
     padding-top: 10px;
+    min-width: 0;                 /* CHANGED: allows text/flex children to shrink instead of overflowing */
 }
-
+ 
 .reviewer_name{
     color: rgb(29, 85, 109);
     text-decoration: none;
 }
-
+ 
 .reviewer_name:hover{
     color: rgb(29, 85, 109);
     cursor: pointer;
@@ -193,27 +217,29 @@ body{
       0 0 102px #63b2e0,
       0 0 151px #63b2e0;
 }
-
+ 
 .review_date{
     font-size: 12px;
 }
-
+ 
 .review_movie_poster{
     width: 60px;
     height: 90px;
     border-radius: 4px;
     object-fit: cover;
+    flex-shrink: 0;
 }
-
+ 
 .single_review_movie_poster{
     width: 120px;
     height: 150px;
+    max-width: 40%;                /* CHANGED: shrinks on narrow screens instead of forcing overflow */
     border-radius: 4px;
     object-fit: cover;
 }
-
+ 
 .review_movie_title {
-    text-align: left; 
+    text-align: left;
     text-decoration: none;
     font-size: 14px;
     max-width: 110px;
@@ -221,9 +247,9 @@ body{
     display: block;
     margin-bottom: 2px;
 }
-
+ 
 .single_review_movie_title {
-    text-align: left; 
+    text-align: left;
     text-decoration: none;
     font-size: 16px;
     max-width: 110px;
@@ -231,64 +257,70 @@ body{
     display: block;
     margin-bottom: 2px;
 }
-
+ 
 .review_movie_score{
     font-size: 12px;
     margin-top: 0;
-    margin-bottom: 2%;   
+    margin-bottom: 2%;
     color: rgba(40, 85, 109, 0.8);
     font-weight: bold;
 }
-
+ 
 .single_review_movie_score{
     font-size: 14px;
     margin-bottom: 2%;
-    margin-top: 0;  
+    margin-top: 0;
     color: rgba(40, 85, 109, 0.8);
     font-weight: bold;
 }
-
+ 
 .review_sauce {
     font-size: 14px;
     line-height: 1.5;
     color: black;
     word-wrap: break-word;
-    max-width: 400px;
+    max-width: 100%;               /* CHANGED: was a fixed 400px, now fills available flex space */
     margin: 0;
     padding-top: 5px;
     flex: 1;
+    min-width: 0;                  /* CHANGED: lets long words/urls wrap instead of overflowing */
     text-decoration: none;
 }
-
+ 
 .review_sauce:hover{
     cursor: pointer;
 }
-
+ 
+/* ===== USER REVIEW (account page) ===== */
 .user_review_container{
     display: flex;
     flex-direction: column;
     font-family: Verdana;
     margin-top: 5%;
+    padding: 0 15px;
+    align-items: center;
 }
-
+ 
 .user_review_card{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     background-color: rgb(158, 68, 43);
     border: 1px solid rgba(29, 85, 109, 0.2);
     border-radius: 30px;
     min-height: 300px;
-    min-width: 500px;
+    min-width: 0;                  /* CHANGED: was 500px, which forced horizontal scroll on phones */
     gap: 20px;
     padding-right: 25px;
     padding-bottom: 15px;
     width: 100%;
     max-width: 750px;
+    box-sizing: border-box;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     margin-left: auto;
     margin-right: auto;
 }
-
+ 
 #edit{
     background-color: rgb(218, 165, 32);
     border: solid 2px rgb(29, 85, 109);
@@ -297,7 +329,7 @@ body{
     font-weight: bold;
     margin-top: 2%;
 }
-
+ 
 #delete{
     background-color: rgb(150, 40, 27);
     border: solid 2px rgb(29, 85, 109);
@@ -306,91 +338,73 @@ body{
     font-weight: bold;
     margin-top: 2%;
 }
-
+ 
 #delete, #edit{
     font-size: 15px;
     height: 50px;
     width: 100px;
 }
-
+ 
 #edit:hover, #delete:hover{
     background-color: wheat;
     cursor: pointer;
 }
-
+ 
 .user_review_buttons{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     margin-left: auto;
     margin-right: auto;
     margin-top: 10px;
     gap: 25px;
+    justify-content: center;
 }
-
+ 
+/* ===== SECTION TOGGLE BUTTONS ===== */
 .more_section_buttons{
     border: 2px solid rgb(29, 85, 109);
     background-color: rgb(158, 68, 43);
     width: 300px;
+    max-width: 45%;
     padding-bottom: 15px;
     padding-top: 15px;
     font-family: Verdana;
     text-align: center;
     cursor: pointer;
-    font-family: Verdana;
-    font-size: 25px;
+    font-size: clamp(16px, 4vw, 25px);  /* CHANGED: was fixed 25px */
+    box-sizing: border-box;
 }
-
+ 
 #latest_reviews_button{
     border-top-left-radius: 30px;
     border-bottom-left-radius: 30px;
     border-right: none;
 }
-
+ 
 #top_rated_button{
     border-top-right-radius: 30px;
     border-bottom-right-radius: 30px;
     border-left: none;
 }
-
+ 
 #top_rated_button:hover, #latest_reviews_button:hover, #library_button:hover{
     background-color: rgb(29, 85, 109);
     border: 2px solid rgb(158, 68, 43);
 }
-
+ 
 .pfp_link{
     cursor: pointer;
 }
-
+ 
 .post_actions{
     display: flex;
+    flex-wrap: wrap;               /* CHANGED */
     gap: 10px;
     align-items: center;
     justify-content: center;
 }
-
-#usernameDisplay{
-    max-width: 150px;
-    text-overflow: ellipsis;
-}
-
-#registerForm.input{
-    background-color: rgb(247, 241, 227);
-}
-
-input.form-control{
-    background-color: rgb(247, 241, 227);
-    max-width: 350px;
-}
-
-button.btn{
-    background-color: rgb(158, 68, 43);
-    border: none;
-}
-
-button.btn:hover{
-    background-color: rgb(29, 85, 109);
-}
-
+ 
 #usernameDisplay{
     display: inline-block;
     max-width: 150px;
@@ -398,7 +412,26 @@ button.btn:hover{
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
+ 
+#registerForm.input{
+    background-color: rgb(247, 241, 227);
+}
+ 
+input.form-control{
+    background-color: rgb(247, 241, 227);
+    max-width: 350px;
+    width: 100%;                   /* CHANGED: fills its container on narrow screens */
+}
+ 
+button.btn{
+    background-color: rgb(158, 68, 43);
+    border: none;
+}
+ 
+button.btn:hover{
+    background-color: rgb(29, 85, 109);
+}
+ 
 #accountBtn{
     width: auto;
     padding: 7px;
@@ -415,13 +448,59 @@ button.btn:hover{
     justify-content: center;
     align-items: center;
 }
-
+ 
 #accountBtn:hover{
     background-color: rgb(29, 85, 109);
     box-shadow: 5px 5px 5px rgb(158, 68, 43);
 }
-
+ 
 .account_page_content{
     display: flex;
     flex-direction: column;
+}
+ 
+/* ===== BREAKPOINTS ===== */
+@media (max-width: 1060px) {
+    .nav_bar {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    .search_container {
+        position: static;
+        transform: none;
+        order: 3;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .search_bar {
+        width: 90%;
+    }
+}
+ 
+@media (max-width: 480px) {
+    .nav_bar{
+        justify-content: center;
+    }
+ 
+    .login_button, .register_button, #accountBtn{
+        width: auto;
+        padding: 0 15px;
+    }
+ 
+    .more_section_buttons{
+        max-width: 100%;
+        width: 100%;
+    }
+ 
+    #latest_reviews_button, #top_rated_button{
+        border-radius: 30px;
+        border: 2px solid rgb(29, 85, 109);
+    }
+ 
+    .review_card, .user_review_card{
+        border-radius: 15px;
+        padding-right: 15px;
+    }
 }
