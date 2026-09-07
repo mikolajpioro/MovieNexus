@@ -242,9 +242,9 @@ async def upload_profile_picture(user_id: int, file: UploadFile, current_user: C
 # PROFILE PICTURE DELETION---------------------------
 @router.delete("/{user_id}/pictures", response_model=UserPrivate)
 async def delete_profile_picture(user_id: int, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
-    if current_user != user_id:
+    if current_user.id != user_id:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this user's picture"
         )
 
