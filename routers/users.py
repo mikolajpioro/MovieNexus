@@ -171,9 +171,6 @@ async def update_user(user_id: int, current_user: CurrentUser, user_update: User
         user.username = user_update.username
     if user_update.email is not None:
         user.email = user_update.email.lower()
-    if user_update.image_file is not None:
-        user.image_file = user_update.image_file
-
     
     await db.commit()
     await db.refresh(user)
@@ -197,26 +194,36 @@ async def delete_user(user_id: int, current_user: CurrentUser, db: Annotated[Asy
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
+    old_filename = user.image_file
     
     await db.delete(user)
     await db.commit()
+
+    if old_filename:
+        delete_profile_image(old_filename)
 # DELETE USER---------------------------
 
-# PROFILE PICTURE UPLOAD---------------------------
+# PROFILE PICTURE UPLOAD--------------------------- It does't work for now
 @router.patch("/{user_id}/picture", response_model=UserPrivate)
-async def upload_profile_picture(user_id: int, file: UploadFile, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
+async def upload_profile_picture(
+    user_id: int,
+    file: UploadFile,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
     if current_user.id != user_id:
-       raise HTTPException(
-           status_code=status.HTTP_403_FORBIDDEN,
-           detail="Not authorized to update this user's picture",
-       ) 
-   
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this user's picture",
+        )
+
     content = await file.read()
 
     if len(content) > settings.max_upload_size_bytes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File too large. Maximum size is {settings.max_upload_size_bytes // (1025 * 1024)} MB",
+            detail=f"File too large. Maximum size is {settings.max_upload_size_bytes // (1024 * 1024)}MB",
         )
 
     try:
@@ -224,7 +231,7 @@ async def upload_profile_picture(user_id: int, file: UploadFile, current_user: C
     except UnidentifiedImageError as err:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid image file. You can only upload in these formats (JPEG, PNG, GIF, WebP)"
+            detail="Invalid image file. Please upload a valid image (JPEG, PNG, GIF, WebP).",
         ) from err
 
     old_filename = current_user.image_file

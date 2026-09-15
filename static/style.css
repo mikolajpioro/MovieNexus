@@ -1,4 +1,4 @@
-/* ===== I've AI's help for positioning and kept it's changes as comments so that I don't get lost ===== */
+/* ===== I've used AI's help for positioning and kept it's changes as comments so that I don't get lost ===== */
 
 body{
     margin: 0;
@@ -190,15 +190,16 @@ body{
     height: 70px;
     flex-shrink: 0;               /* CHANGED: keep avatar from getting squished when card wraps */
 }
- 
-.review_content{
+
+.review_content {
     display: flex;
     font-family: Verdana;
     flex-direction: column;
     text-decoration: none;
     align-items: flex-start;
     padding-top: 10px;
-    min-width: 0;                 /* CHANGED: allows text/flex children to shrink instead of overflowing */
+    min-width: 0;
+    flex: 1;
 }
  
 .reviewer_name{
@@ -231,13 +232,20 @@ body{
     object-fit: cover;
     flex-shrink: 0;
 }
- 
+
 .single_review_movie_poster{
-    width: 120px;
-    height: 150px;
-    max-width: 40%;                /* CHANGED: shrinks on narrow screens instead of forcing overflow */
-    border-radius: 4px;
+    width: 140px;
+    aspect-ratio: 2 / 3;      /* keeps proper poster proportions regardless of width */
+    max-width: 40%;           /* shrinks on narrow screens, was min-width — that was the bug */
+    border-radius: 8px;       /* slightly softer than 4px, matches the card's 30px rounding better */
     object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* lifts it off the dark card background */
+    display: block;
+}
+
+.single_review_movie_poster:hover{
+    transform: scale(1.02);
+    transition: transform 0.2s ease;
 }
  
 .review_movie_title {
@@ -259,6 +267,7 @@ body{
     display: block;
     margin-bottom: 2px;
 }
+
  
 .review_movie_score{
     font-size: 12px;

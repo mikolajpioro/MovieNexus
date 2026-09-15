@@ -30,8 +30,8 @@
                             <a class="reviewer_name" href="{{ url_for('user_reviews', user_id=review.user_id ) }}">{{ review.author.username }}</a>
                             <p class="review_date">{{ review.date_posted.strftime('%b %d, %Y') }}</p>
                         </div>
-
-                        <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%;">
+                        
+                        <div style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start; width: 100%; min-width: 0;">
                             <div style="display: flex; flex-direction: column; min-width: 110px;">
                                 <img class="review_movie_poster" src="{{ review.poster_url }}" alt="{{review.movie_title}}'s poster">
                                 <a class="review_movie_title">{{ review.movie_title }}</a>
