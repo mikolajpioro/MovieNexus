@@ -204,7 +204,7 @@ async def delete_user(user_id: int, current_user: CurrentUser, db: Annotated[Asy
         delete_profile_image(old_filename)
 # DELETE USER---------------------------
 
-# PROFILE PICTURE UPLOAD--------------------------- It does't work for now
+# PROFILE PICTURE UPLOAD---------------------------
 @router.patch("/{user_id}/picture", response_model=UserPrivate)
 async def upload_profile_picture(
     user_id: int,

@@ -17,7 +17,7 @@ def process_profile_image(content: bytes) -> str:
         filename = f"{uuid.uuid4().hex}.jpg"
         filepath = PROFILE_PICS_DIR / filename
 
-        PROFILE_PICS_DIR.mkdir(parents=True, exists_ok=True)
+        PROFILE_PICS_DIR.mkdir(parents=True, exist_ok=True)
 
         img.save(filepath, "JPEG", quality=85, optimize=True)
 
