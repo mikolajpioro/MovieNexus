@@ -31,7 +31,7 @@ async def get_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
     return reviews
 # GET ALL REVIEWS---------
 
-# CREATE A NEW REVIEW---------
+# CREATE A NEW REVIEW----------
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(review: ReviewCreate, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
 
@@ -50,7 +50,7 @@ async def create_review(review: ReviewCreate, current_user: CurrentUser, db: Ann
     await db.commit()
     await db.refresh(new_review, attribute_names=["author"])
     return new_review
-# CREATE A NEW REVIEW---------
+# CREATE A NEW REVIEW----------
 
 # GET A REVIEW BY ID----------
 @router.get("/{review_id}", response_model=ReviewResponse)
