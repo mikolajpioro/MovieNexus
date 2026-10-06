@@ -97,7 +97,7 @@ async def update_review_full(review_id: int, current_user: CurrentUser, review_d
     
     await db.commit()
     await db.refresh(review)
-    return review
+    return review    
 # UPDATE A REVIEW FULLY----------
 
 # UPDATE A REVIEW PARTIALLY----------
